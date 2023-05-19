@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="En">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link href="assets/fav.ico" rel="icon" /> -->
+    <title>Liquid Works</title>
+  </head>
+  <body style="background: White">
+    <div class="canvas-widget" id="editor-canvas"></div>
+    <script type="module">
+      import {
+        Editor,
+        Canvas_Widget,
+      } from "./editor.js";
+
+      new Canvas_Widget(document.querySelector("#editor-canvas"), [new Editor()]);
+    </script>
+  </body>
+</html>
