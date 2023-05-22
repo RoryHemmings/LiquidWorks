@@ -1,0 +1,43 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(51, 51, 51);
+}
+
+main {
+    display: flex;
+}
+
+h1, p, button {
+    font-family: "Roboto";
+}
+
+.title {
+    margin: 0;
+    padding: 2rem;
+    background-color: black;
+    border-bottom: 2px solid gray;
+}
+
+.title h1 {
+    text-align: center;
+    font-size: 3rem;
+}
+
+.sidebar {
+    flex: 1;
+    padding: 1.5rem 5rem;
+    background-color: black;
+    border: 2px solid gray;
+}
+
+.tool {
+    display: block;
+    margin: 1rem 0;
+}
+
+.tool button {
+    padding: 1rem;
+    width: 80%;
+}
+

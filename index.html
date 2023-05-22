@@ -1,19 +1,36 @@
 <!DOCTYPE html>
 <html lang="En">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- <link href="assets/fav.ico" rel="icon" /> -->
-    <title>Liquid Works</title>
-  </head>
-  <body style="background: White">
-    <div class="canvas-widget" id="editor-canvas"></div>
-    <script type="module">
-      import {
-        Editor,
-        Canvas_Widget,
-      } from "./editor.js";
 
-      new Canvas_Widget(document.querySelector("#editor-canvas"), [new Editor()]);
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <!-- <link href="assets/fav.ico" rel="icon" /> -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>Liquid Works</title>
+</head>
+
+<body style="background: White">
+  <div class="title">
+    <h1>Liquid Works</h1>
+  </div>
+  <main>
+    <div class="sidebar" id="toolbar">
+      <h1>Toolbar:</h1>
+
+      <!-- Tools will be appended here -->
+    </div>
+
+    <!-- Editor -->
+    <div class="canvas-widget" id="editor-canvas"></div>
+
+    <div class="sidebar" id="controls">
+      <h1>Controls:</h1>
+    </div>
+  </main>
+
+  <script type="module" src="index.js"></script>
+</body>
+
 </html>
