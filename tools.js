@@ -1,29 +1,32 @@
+import { createDiv, createInput } from './dom.js';
+
 class Tool {
     constructor(ui, displayName) {
         this._ui = ui;
         this._displayName = displayName;
-
         this._element = this._createElement();
+        this._controls = [];
     }
 
-    select() {
-        // TODO tell controller to select this as current selected tool
-        // controller will then display current metrics/settings - defined in metrics and settings array
-        // and event handler for clicking on screen
-        this._ui.selectTool(this);
+    // Update selection status
+    touch(selected) {
+        this._element.querySelector('button').style =
+            `background-color: ${selected ? '#303030' : '#606060'}`;
     }
 
     getElement() {
         return this._element;
     }
 
-    _createElement() {
-        let div = document.createElement('div');
-        div.className = 'tool';
+    getControls() {
+        return this._controls;
+    }
 
+    _createElement() {
+        let div = createDiv('tool');
         let button = document.createElement('button');
         button.innerHTML = this._displayName;
-        button.addEventListener('click', () => this.select());
+        button.addEventListener('mousedown', () => this._ui.selectTool(this));
 
         div.appendChild(button);
         return div;
@@ -33,6 +36,22 @@ class Tool {
 export class SelectTool extends Tool {
     constructor(ui) {
         super(ui, 'Select');
+
+        let div = createDiv('control-div');
+        let c = createInput({
+            parentClassName: 'select-controls',
+            label: 'Select:',
+            callback: (e) => {
+                console.log(e.target.value);
+            },
+        });
+        div.appendChild(c);
+
+        this._controls = div;
+    }
+
+    setSelectedObject(obj) {
+        
     }
 }
 

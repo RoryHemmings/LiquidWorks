@@ -10,6 +10,7 @@ main {
 
 h1, p, button {
     font-family: "Roboto";
+    color: white;
 }
 
 .title {
@@ -38,6 +39,19 @@ h1, p, button {
 
 .tool button {
     padding: 1rem;
-    width: 80%;
+    width: 100%;
+    color: white;
+    border: white solid 1px;
 }
 
+.tool button:hover {
+    outline: white solid 2px;
+}
+
+.tool-selected {
+    background-color: blue;
+}
+
+.tool-unselected {
+    background-color: red;
+}
