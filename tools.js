@@ -39,7 +39,6 @@ export class SelectTool extends Tool {
 
         let div = createDiv('control-div');
         let c = createInput({
-            parentClassName: 'select-controls',
             label: 'Select:',
             callback: (e) => {
                 console.log(e.target.value);

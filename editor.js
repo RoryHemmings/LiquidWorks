@@ -1,4 +1,5 @@
 import { defs, tiny } from './lib/common.js';
+import { WorldObject } from './world_object.js'
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
@@ -25,6 +26,7 @@ class Editor extends Scene {
             }),
         }
 
+        this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
     }
 
@@ -41,8 +43,9 @@ class Editor extends Scene {
         const light_position = vec4(10, 10, 10, 1);
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
 
-        let model_transform = Mat4.identity();
-        this.shapes.cube.draw(context, program_state, model_transform, this.materials.phong.override({ color: hex_color("#808080") }));
+        for (let obj of this.worldObjects) {
+            obj.draw(context, program_state);
+        }
     }
 }
 
