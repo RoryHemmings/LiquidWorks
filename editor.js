@@ -26,6 +26,14 @@ class Editor extends Scene {
             }),
         }
 
+        this.colliders = [
+            //{intersect_test: WorldObject.intersect_sphere, points: new defs.Subdivision_Sphere(1), leeway: .5},
+            //{intersect_test: WorldObject.intersect_sphere, points: new defs.Subdivision_Sphere(2), leeway: .3},
+            {intersect_test: WorldObject.intersect_cube, points: new defs.Cube(), leeway: .1}
+        ];
+
+        this.collider_selection = 0;
+
         this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
         this.selectedObject = this.worldObjects[0];
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
@@ -49,12 +57,13 @@ class Editor extends Scene {
         center_world_near.scale_by(1 / center_world_near[3]);
         
         console.log(pos_world_near);
+       // console.log(pos_world_far);
 
-        //const collider = this.colliders[this.collider_selection];
+       const collider = this.colliders[this.collider_selection];
 
         // for (let obj of this.worldObjects) {
         //     // Pass the two bodies and the collision shape to check_if_colliding():
-        //     let b = 
+        //     let b = pos_ndc_near;
         //     if (!obj.check_if_colliding(b, collider))
         //         continue;
         //     // If we get here, we collided, so turn red and zero out the
@@ -104,9 +113,16 @@ class Editor extends Scene {
 
         const light_position = vec4(10, 10, 10, 1);
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
-
+        
+        const {points, leeway} = this.colliders[this.collider_selection];
+        
         for (let obj of this.worldObjects) {
+            if (obj == this.selectedObject){
+                obj.drawSelected(context, program_state);
+            }
+            else{
             obj.draw(context, program_state);
+            }
         }
     }
 }

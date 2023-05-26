@@ -38,6 +38,10 @@ export class WorldObject {
         this._transform = this._transform.times(Mat4.scale(s, s, s));
     }
 
+    rotate_transform(x, y, z, w) {
+        this._transform = this._transform.times(Mat4.rotation(x, y, z, w));
+    }
+
     check_if_colliding(b, collider) {
         // check_if_colliding(): Collision detection function.
         // DISCLAIMER:  The collision method shown below is not used by anyone; it's just very quick
@@ -49,7 +53,7 @@ export class WorldObject {
             return false;
         // Nothing collides with itself.
         // Convert sphere b to the frame where a is a unit sphere:
-        const T = this.inverse.times(b.drawn_location, this.temp_matrix);
+        const T = this.inverse.times(b, this.temp_matrix);
 
         const {intersect_test, points, leeway} = collider;
         // For each vertex in that b, shift to the coordinate frame of
@@ -61,5 +65,11 @@ export class WorldObject {
 
     draw(context, program_state) {
         this._shape.draw(context, program_state, this._transform, this._shader);
+    }
+
+    drawSelected(context, program_state) {
+        //const green = hex_color("#00FF00");
+        const gray = hex_color("#FFFFFF");
+        this._shape.draw(context, program_state, this._transform, this._shader.override({color: gray}));
     }
 }
