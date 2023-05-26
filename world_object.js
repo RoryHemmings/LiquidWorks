@@ -11,6 +11,9 @@ export class WorldObject {
         this._shape = shape;
         this._transform = transform;
         this._shader = shader;
+        this._position = [0, 0, 0];
+        this._scale = [0, 0, 0];
+        this._rotation = [0, 0, 0];
     }
 
     // (within some margin of distance).
@@ -26,20 +29,42 @@ export class WorldObject {
         this._transform = t;
     }
 
+    get position() {
+        return this._position;
+    }
+
+    get scale() {
+        return this._scale;
+    }
+
+    get rotation() {
+        return this._rotation;
+    }
+
     get transform(){
         return this._transform;
     }
 
-    translate_transform(delta_x, delta_y, delta_z){
-        this._transform = this._transform.times(Mat4.translation(delta_x, delta_y, delta_z));
+    translate_transform(dx, dy, dz){
+        this._transform = this._transform.times(Mat4.translation(dx, dy, dz));
+        this.position[0] += dx;
+        this.position[1] += dy;
+        this.position[2] += dz;
     }
 
-    scale_transform(s) {
-        this._transform = this._transform.times(Mat4.scale(s, s, s));
+    scale_transform(sx, sy, sz) {
+        this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
+
+        this._scale[0] += sx;
+        this._scale[1] += sy;
+        this._scale[2] += sz;
     }
 
-    rotate_transform(x, y, z, w) {
-        this._transform = this._transform.times(Mat4.rotation(x, y, z, w));
+    rotate_transform(rx, ry, rz, w) {
+        this._transform = this._transform.times(Mat4.rotation(rx, ry, rz, w));
+        this._rotation[0] += rx;
+        this._rotation[1] += ry;
+        this._rotation[2] += rz;
     }
 
     check_if_colliding(b, collider) {
