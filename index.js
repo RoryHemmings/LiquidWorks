@@ -6,11 +6,12 @@ import {
 import UI from './ui.js'
 
 const setup = () => {
+    const editor = new Editor();
     // Set up UI
-    new UI();
+    new UI(editor);
 
     // Draw Canvas
-    new Canvas_Widget(document.querySelector("#editor-canvas"), [new Editor()], {
+    new Canvas_Widget(document.querySelector("#editor-canvas"), [editor], {
         make_controls: false,
         make_code_nav: false,
         show_explanation: false,

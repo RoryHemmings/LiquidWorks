@@ -27,14 +27,76 @@ class Editor extends Scene {
         }
 
         this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
+        this.selectedObject = this.worldObjects[0];
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+    }
+
+    make_control_panel() {
+        // TODO:  Implement requirement #5 using a key_triggered_button that responds to the 'c' key.
+    }
+
+    my_mouse_down(e, pos, context, program_state) {
+        let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
+        let pos_ndc_far  = vec4(pos[0], pos[1],  1.0, 1.0);
+        let center_ndc_near = vec4(0.0, 0.0, -1.0, 1.0);
+        let P = program_state.projection_transform;
+        let V = program_state.camera_inverse;
+        let pos_world_near = Mat4.inverse(P.times(V)).times(pos_ndc_near);
+        let pos_world_far  = Mat4.inverse(P.times(V)).times(pos_ndc_far);
+        let center_world_near  = Mat4.inverse(P.times(V)).times(center_ndc_near);
+        pos_world_near.scale_by(1 / pos_world_near[3]);
+        pos_world_far.scale_by(1 / pos_world_far[3]);
+        center_world_near.scale_by(1 / center_world_near[3]);
+        
+        console.log(pos_world_near);
+
+        //const collider = this.colliders[this.collider_selection];
+
+        // for (let obj of this.worldObjects) {
+        //     // Pass the two bodies and the collision shape to check_if_colliding():
+        //     let b = 
+        //     if (!obj.check_if_colliding(b, collider))
+        //         continue;
+        //     // If we get here, we collided, so turn red and zero out the
+        //     // velocity so they don't inter-penetrate any further.
+
+        // }
+
+        //console.log(pos_world_far);
+        //
+        //Do whatever you want
+        // let animation_bullet = {
+        //     from: center_world_near,
+        //     to: pos_world_far,
+        //     start_time: program_state.animation_time,
+        //     end_time: program_state.animation_time + 5000,
+        // }
+
+        // this.animation_queue.push(animation_bullet)
     }
 
     display(context, program_state) {
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
-            program_state.set_camera(Mat4.translation(-1, -1, -10).times(Mat4.rotation(Math.PI/6, 1, 1, 0)));
+            let LookAt = Mat4.look_at(vec3(0, 0, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+            program_state.set_camera(LookAt);
+
+            let canvas = context.canvas;
+            const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
+                vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
+                    (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
+
+            canvas.addEventListener("mousedown", e => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect()
+                // console.log("e.clientX: " + e.clientX);
+                // console.log("e.clientX - rect.left: " + (e.clientX - rect.left));
+                // console.log("e.clientY: " + e.clientY);
+                // console.log("e.clientY - rect.top: " + (e.clientY - rect.top));
+                // console.log("mouse_position(e): " + mouse_position(e));
+                this.my_mouse_down(e, mouse_position(e), context, program_state);
+            });
         }
 
         program_state.projection_transform = Mat4.perspective(

@@ -57,17 +57,80 @@ export class SelectTool extends Tool {
 export class TransformTool extends Tool {
     constructor(ui) {
         super(ui, 'Transform');
+        this._x = 0;
+        this._y = 0;
+        this._z = 0;
+
+        let div = createDiv('control-div');
+        let c1 = createInput({
+            label: 'Delta X:',
+            callback: (e) => {
+                this._ui.getEditor().selectedObject.translate_transform(e.target.value, this._y, this._z);
+            },
+        });
+        div.appendChild(c1);
+        let c2 = createInput({
+            label: 'Delta Y:',
+            callback: (e) => {
+                console.log(e.target.value);
+            },
+        });
+        div.appendChild(c2);
+
+        let c3 = createInput({
+            label: 'Delta Z:',
+            callback: (e) => {
+                console.log(e.target.value);
+            },
+        });
+        div.appendChild(c3);
+
+        this._controls = div;
+    }
+
+    touch(selected) {
+        super.touch(selected);
+
+        this._x = this._ui.getEditor().selectedObject.transform[0][3];
+        this._y = this._ui.getEditor().selectedObject.transform[1][3];
+        this._z = this._ui.getEditor().selectedObject.transform[2][3];
+
+        this._controls.childNodes[0].childNodes[1].setAttribute('value', this._x);
+        this._controls.childNodes[1].childNodes[1].setAttribute('value', this._y);
+        this._controls.childNodes[2].childNodes[1].setAttribute('value', this._z);
     }
 }
 
 export class RotateTool extends Tool {
     constructor(ui) {
         super(ui, 'Rotate');
+
+        let div = createDiv('control-div');
+        let c = createInput({
+            label: 'Rotate (Degrees):',
+            callback: (e) => {
+                console.log(e.target.value);
+            },
+        });
+        div.appendChild(c);
+
+        this._controls = div;
     }
 }
 
 export class ScaleTool extends Tool {
     constructor(ui) {
         super(ui, 'Scale');
+
+        let div = createDiv('control-div');
+        let c = createInput({
+            label: 'Scale:',
+            callback: (e) => {
+                console.log(e.target.value);
+            },
+        });
+        div.appendChild(c);
+
+        this._controls = div;
     }
 }

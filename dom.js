@@ -19,6 +19,7 @@ export const createInput = ({ parentClassName='', label='', callback=()=>{} }) =
     let input = document.createElement('input');
     input.addEventListener('input', callback);
 
+    input.type = "number";
     div.appendChild(p);
     div.appendChild(input);
 
