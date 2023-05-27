@@ -1,5 +1,6 @@
 import { defs, tiny } from './lib/common.js';
 
+
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
@@ -50,14 +51,20 @@ export class WorldObject {
         this.position[0] += dx;
         this.position[1] += dy;
         this.position[2] += dz;
+        //console.log(this._intersect_cube(this));
+        //console.log("HELLO");
     }
 
-    scale_transform(sx, sy, sz) {
-        this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
+    // scale_transform(sx, sy, sz) {
+    //     this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
 
-        this._scale[0] += sx;
-        this._scale[1] += sy;
-        this._scale[2] += sz;
+    //     this._scale[0] += sx;
+    //     this._scale[1] += sy;
+    //     this._scale[2] += sz;
+    // }
+
+    scale_transform(s) {
+        this._transform = this._transform.times(Mat4.scale(s, s, s));
     }
 
     rotate_transform(rx, ry, rz, w) {
@@ -67,25 +74,45 @@ export class WorldObject {
         this._rotation[2] += rz;
     }
 
-    check_if_colliding(b, collider) {
-        // check_if_colliding(): Collision detection function.
-        // DISCLAIMER:  The collision method shown below is not used by anyone; it's just very quick
-        // to code.  Making every collision body an ellipsoid is kind of a hack, and looping
-        // through a list of discrete sphere points to see if the ellipsoids intersect is *really* a
-        // hack (there are perfectly good analytic expressions that can test if two ellipsoids
-        // intersect without discretizing them into points).
-        if (this == b)
-            return false;
-        // Nothing collides with itself.
-        // Convert sphere b to the frame where a is a unit sphere:
-        const T = this.inverse.times(b, this.temp_matrix);
 
-        const {intersect_test, points, leeway} = collider;
-        // For each vertex in that b, shift to the coordinate frame of
-        // a_inv*b.  Check if in that coordinate frame it penetrates
-        // the unit sphere at the origin.  Leave some leeway.
-        return points.arrays.position.some(p =>
-            intersect_test(T.times(p.to4(1)).to3(), leeway));
+    isLineIntersectingRectangularPrism(point1, point2) {            //CURRENTLY DOES NOT WORK WITH ROTATION
+        let prismCenter = this.position;
+        let matrix = this.transform;
+
+        let prismSides =  [2 * matrix[0][0], 2 * matrix[1][1], 2 * matrix[2][2]];
+
+        const halfSides = prismSides.map(side => side / 2);
+
+        const prismMin = prismCenter.map((center, index) => center - halfSides[index]);
+        const prismMax = prismCenter.map((center, index) => center + halfSides[index]);
+
+        for (let i = 0; i < 3; i++) {
+            if (point1[i] < prismMin[i] && point2[i] < prismMin[i]) {
+            continue;
+            }
+            if (point1[i] > prismMax[i] && point2[i] > prismMax[i]) {
+            continue;
+            }
+
+            const t = (prismMax[i] - point1[i]) / (point2[i] - point1[i]);
+            const intersection = point1.map((coord, index) => coord + t * (point2[index] - coord));
+
+            let isInside = true;
+            for (let j = 0; j < 3; j++) {
+            if (j === i) {
+                continue;
+            }
+            if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
+                isInside = false;
+                break;
+            }
+            }
+            if (isInside) {
+            return true; 
+            }
+        }
+
+        return false; 
     }
 
     draw(context, program_state) {
@@ -93,8 +120,8 @@ export class WorldObject {
     }
 
     drawSelected(context, program_state) {
-        //const green = hex_color("#00FF00");
+        const green = hex_color("#00FF00");
         const gray = hex_color("#FFFFFF");
-        this._shape.draw(context, program_state, this._transform, this._shader.override({color: gray}));
+        this._shape.draw(context, program_state, this._transform, this._shader.override({color: green}));
     }
 }

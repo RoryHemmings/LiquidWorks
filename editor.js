@@ -26,22 +26,14 @@ class Editor extends Scene {
             }),
         }
 
-        this.colliders = [
-            //{intersect_test: WorldObject.intersect_sphere, points: new defs.Subdivision_Sphere(1), leeway: .5},
-            //{intersect_test: WorldObject.intersect_sphere, points: new defs.Subdivision_Sphere(2), leeway: .3},
-            {intersect_test: WorldObject.intersect_cube, points: new defs.Cube(), leeway: .1}
-        ];
 
-        this.collider_selection = 0;
-
-        this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
+        this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
+        this.worldObjects[0].translate_transform(500,500,500);
         this.selectedObject = this.worldObjects[0];
+        this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
     }
 
-    make_control_panel() {
-        // TODO:  Implement requirement #5 using a key_triggered_button that responds to the 'c' key.
-    }
 
     my_mouse_down(e, pos, context, program_state) {
         let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
@@ -55,33 +47,25 @@ class Editor extends Scene {
         pos_world_near.scale_by(1 / pos_world_near[3]);
         pos_world_far.scale_by(1 / pos_world_far[3]);
         center_world_near.scale_by(1 / center_world_near[3]);
-        
-        console.log(pos_world_near);
-       // console.log(pos_world_far);
 
-       const collider = this.colliders[this.collider_selection];
+       let found = false;
 
-        // for (let obj of this.worldObjects) {
-        //     // Pass the two bodies and the collision shape to check_if_colliding():
-        //     let b = pos_ndc_near;
-        //     if (!obj.check_if_colliding(b, collider))
-        //         continue;
-        //     // If we get here, we collided, so turn red and zero out the
-        //     // velocity so they don't inter-penetrate any further.
+         for (let obj of this.worldObjects) {
+             if (obj.isLineIntersectingRectangularPrism(pos_world_near, pos_world_far)) {
+                found = true;
+                if (this.selectedObject == this.worldObjects[0]){
+                    this.selectedObject = obj;
+                    this.selected = true;
+                }
+                else {
+                    this.selected = false;
+                }
+             }
+         }
+         if ((!this.selected) || (!found)){
+            this.selectedObject = this.worldObjects[0];
+         }
 
-        // }
-
-        //console.log(pos_world_far);
-        //
-        //Do whatever you want
-        // let animation_bullet = {
-        //     from: center_world_near,
-        //     to: pos_world_far,
-        //     start_time: program_state.animation_time,
-        //     end_time: program_state.animation_time + 5000,
-        // }
-
-        // this.animation_queue.push(animation_bullet)
     }
 
     display(context, program_state) {
@@ -114,7 +98,6 @@ class Editor extends Scene {
         const light_position = vec4(10, 10, 10, 1);
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
         
-        const {points, leeway} = this.colliders[this.collider_selection];
         
         for (let obj of this.worldObjects) {
             if (obj == this.selectedObject){
