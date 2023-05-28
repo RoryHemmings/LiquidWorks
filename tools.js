@@ -57,27 +57,30 @@ export class SelectTool extends Tool {
 export class TransformTool extends Tool {
     constructor(ui) {
         super(ui, 'Transform');
+        this._x = 0;
+        this._y = 0;
+        this._z = 0;
 
         let div = createDiv('control-div');
         let c1 = createInput({
-            label: 'X:',
+            label: 'Delta X:',
             callback: (e) => {
-                this._ui.getEditor().selectedObject.translate_transform(e.target.value - this._ui.getEditor().selectedObject.position[0], 0 , 0);
+                this._ui.getEditor().selectedObject.translate_transform(e.target.value,0 , 0);
             },
         });
         div.appendChild(c1);
         let c2 = createInput({
-            label: 'Y:',
+            label: 'Delta Y:',
             callback: (e) => {
-                this._ui.getEditor().selectedObject.translate_transform(0, e.target.value - this._ui.getEditor().selectedObject.position[1], 0);
+                this._ui.getEditor().selectedObject.translate_transform(0, e.target.value, 0);
             },
         });
         div.appendChild(c2);
 
         let c3 = createInput({
-            label: 'Z:',
+            label: 'Delta Z:',
             callback: (e) => {
-                this._ui.getEditor().selectedObject.translate_transform(0, 0, e.target.value - this._ui.getEditor().selectedObject.position[2]);
+                this._ui.getEditor().selectedObject.translate_transform(0, 0, e.target.value);
             },
         });
         div.appendChild(c3);
@@ -88,9 +91,13 @@ export class TransformTool extends Tool {
     touch(selected) {
         super.touch(selected);
 
-        this._controls.childNodes[0].childNodes[1].setAttribute('value', this._ui.getEditor().selectedObject.position[0]);
-        this._controls.childNodes[1].childNodes[1].setAttribute('value', this._ui.getEditor().selectedObject.position[1]);
-        this._controls.childNodes[2].childNodes[1].setAttribute('value', this._ui.getEditor().selectedObject.position[2]);
+        this._x = this._ui.getEditor().selectedObject.transform[0][3];
+        this._y = this._ui.getEditor().selectedObject.transform[1][3];
+        this._z = this._ui.getEditor().selectedObject.transform[2][3];
+
+        this._controls.childNodes[0].childNodes[1].setAttribute('value', this._x);
+        this._controls.childNodes[1].childNodes[1].setAttribute('value', this._y);
+        this._controls.childNodes[2].childNodes[1].setAttribute('value', this._z);
     }
 }
 
