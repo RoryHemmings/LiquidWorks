@@ -162,10 +162,10 @@ export class ColorTool extends Tool {
 
         let div = createDiv('control-div');
         let c = createInput({
-            label: 'RGB Color:',
+            label: 'RGB Color (RRGGBB):',
             callback: (e) => {
                 if (e.target.value > 0){
-                this._ui.getEditor().selectedObject.scale_transform(e.target.value);
+                this._ui.getEditor().selectedObject.change_color(e.target.value);
                 }
             },
         });

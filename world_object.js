@@ -15,6 +15,7 @@ export class WorldObject {
         this._position = [0, 0, 0];
         this._scale = [0, 0, 0];
         this._rotation = [0, 0, 0];
+        this._color = hex_color("#FFFFFF");
     }
 
     // (within some margin of distance).
@@ -74,8 +75,12 @@ export class WorldObject {
         this._rotation[2] += rz;
     }
 
+    change_color(color){
+        this._color = hex_color(color);
+    }
 
-    isLineIntersectingRectangularPrism(point1, point2) {            //CURRENTLY DOES NOT WORK WITH ROTATION
+
+    isLineIntersectingRectangularPrism(point1, point2) {            //CURRENTLY DOES NOT WORK WITH ROTATION KIND OF
         let prismCenter = this.position;
         let matrix = this.transform;
 
@@ -116,7 +121,7 @@ export class WorldObject {
     }
 
     draw(context, program_state) {
-        this._shape.draw(context, program_state, this._transform, this._shader);
+        this._shape.draw(context, program_state, this._transform, this._shader.override({color: this._color}));
     }
 
     drawSelected(context, program_state) {

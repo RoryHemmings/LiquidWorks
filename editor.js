@@ -33,7 +33,7 @@ class Editor extends Scene {
         this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        this.mode = "translate";
+        this.mode = "rotate";
 
         this.initialPos = [0, 0 ,0 ];
 
@@ -86,7 +86,33 @@ class Editor extends Scene {
         pos_world_far.scale_by(1 / pos_world_far[3]);
         center_world_near.scale_by(1 / center_world_near[3]);
 
-        //console.log(pos_world_near);
+        if (initial){
+            this.initialPos = pos_world_near;
+        }
+        else {
+            const diffX = pos_world_near[0] - this.initialPos[0];
+            const diffY = pos_world_near[1] - this.initialPos[1];
+            const diffZ = pos_world_near[2] - this.initialPos[2];
+
+
+            this.selectedObject.translate_transform(diffX*10, diffY*10, diffZ*10);
+
+            this.initialPos = pos_world_near;
+        }
+    }
+
+    my_mouse_down_rotate(e, pos, context, program_state, initial) {
+        let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
+        let pos_ndc_far  = vec4(pos[0], pos[1],  1.0, 1.0);
+        let center_ndc_near = vec4(0.0, 0.0, -1.0, 1.0);
+        let P = program_state.projection_transform;
+        let V = program_state.camera_inverse;
+        let pos_world_near = Mat4.inverse(P.times(V)).times(pos_ndc_near);
+        let pos_world_far  = Mat4.inverse(P.times(V)).times(pos_ndc_far);
+        let center_world_near  = Mat4.inverse(P.times(V)).times(center_ndc_near);
+        pos_world_near.scale_by(1 / pos_world_near[3]);
+        pos_world_far.scale_by(1 / pos_world_far[3]);
+        center_world_near.scale_by(1 / center_world_near[3]);
 
         if (initial){
             this.initialPos = pos_world_near;
@@ -96,17 +122,20 @@ class Editor extends Scene {
             const diffY = pos_world_near[1] - this.initialPos[1];
             const diffZ = pos_world_near[2] - this.initialPos[2];
 
-            // console.log(diffX);
-            // console.log(diffY);
-            // console.log(diffZ);
+            const angleX = Math.atan2(diffY, diffZ);
+            const angleY = Math.atan2(diffX, diffZ);
+            const angleZ = Math.atan2(diffX, diffY);
 
-            this.selectedObject.translate_transform(diffX*10, diffY*10, diffZ*10);
+            console.log(angleX);
+            console.log(angleY);
+            console.log(angleZ);
+
+            this.selectedObject.rotate_transform(angleX/180, 0, 0, 1);          //THIS MAKES NO SENSE :(((((((
+            this.selectedObject.rotate_transform(angleY/180, 0, 1, 0);
+            this.selectedObject.rotate_transform(angleZ/180, 1, 0, 0);
+
             this.initialPos = pos_world_near;
         }
-
-
-
-
     }
 
     
@@ -128,22 +157,19 @@ class Editor extends Scene {
             canvas.addEventListener("mousedown", e => {
                 e.preventDefault();
                 isMouseDown = true;
-                //initialMouseX = e.clientX;
-                //initialMouseY = e.clientY;
-  
-                //console.log("Mouse position: X = " + initialMouseX + ", Y = " + initialMouseY);
-                const rect = canvas.getBoundingClientRect()
-                // console.log("e.clientX: " + e.clientX);
-                // console.log("e.clientX - rect.left: " + (e.clientX - rect.left));
-                // console.log("e.clientY: " + e.clientY);
-                // console.log("e.clientY - rect.top: " + (e.clientY - rect.top));
-                //console.log("mouse_position(e): " + mouse_position(e));
+
+                const rect = canvas.getBoundingClientRect();
+
                 if (this.mode == "select"){
                     this.my_mouse_down_select(e, mouse_position(e), context, program_state);
                 }
                 else if (this.mode == "translate"){
                     e.stopImmediatePropagation();
                     this.my_mouse_down_translate(e, mouse_position(e), context, program_state, true);
+                }
+                else if (this.mode == "rotate"){
+                    e.stopImmediatePropagation();
+                    this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, true);
                 }
             });
 
@@ -158,13 +184,14 @@ class Editor extends Scene {
                         var mouseY = e.clientY;
 
                         this.my_mouse_down_translate(e, mouse_position(e), context, program_state, false);
+                    }
+                    else if (this.mode == "rotate"){
+                        e.stopImmediatePropagation();
+                        controls.enablePan = false;
 
-
-                        //console.log("Mouse position during movement: X = " + mouseX + ", Y = " + mouseY);
+                        this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, false);
                     }
                 }
-
-                // this.my_mouse_down(e, mouse_position(e), context, program_state);
             });
 
             canvas.addEventListener("mouseup", e => {
