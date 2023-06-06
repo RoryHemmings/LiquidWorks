@@ -228,11 +228,34 @@ export class AddTool extends Tool {
         this._ui.getEditor().worldObjects.push(wo);
     }
 
-    importObject() {
-        const filepath = 'teapot.obj';
-        const unique_name = crypto.randomUUID();
+    async importObject() {
+        let filepath = '';
+        try { filepath = await this._chooseFile(); }
+        catch (e) { return; }
 
+        const unique_name = crypto.randomUUID();
         this._ui.getEditor().shapes[unique_name] = new ShapeFromFile(filepath);
         this.addObject(unique_name);
+    }
+
+    _chooseFile() {
+        return Promise((resolve, reject) => {
+            let tmp = document.createElement('input');
+            tmp.type = 'file';
+
+            tmp.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file === undefined) reject();
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const content = e.target.result(); 
+                    resolve(`url(${content})`);
+                };
+            };
+
+            tmp.click();
+        });
     }
 }
