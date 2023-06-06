@@ -93,10 +93,10 @@ export class WorldObject {
 
         for (let i = 0; i < 3; i++) {
             if (point1[i] < prismMin[i] && point2[i] < prismMin[i]) {
-            continue;
+                continue;
             }
             if (point1[i] > prismMax[i] && point2[i] > prismMax[i]) {
-            continue;
+                continue;
             }
 
             const t = (prismMax[i] - point1[i]) / (point2[i] - point1[i]);
@@ -104,16 +104,16 @@ export class WorldObject {
 
             let isInside = true;
             for (let j = 0; j < 3; j++) {
-            if (j === i) {
-                continue;
-            }
-            if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
-                isInside = false;
-                break;
-            }
+                if (j === i) {
+                    continue;
+                }
+                if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
+                    isInside = false;
+                    break;
+                }
             }
             if (isInside) {
-            return true; 
+                return true; 
             }
         }
 

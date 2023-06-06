@@ -1,4 +1,11 @@
-import { createDiv, createInput } from './dom.js';
+import { createButton, createDiv, createInput } from './dom.js';
+import { WorldObject } from './world_object.js';
+
+import { defs, tiny } from './lib/common.js';
+const {
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
+    Canvas_Widget
+} = tiny;
 
 class Tool {
     constructor(ui, displayName) {
@@ -155,7 +162,6 @@ export class ScaleTool extends Tool {
     }
 }
 
-
 export class ColorTool extends Tool {
     constructor(ui) {
         super(ui, 'Color');
@@ -164,12 +170,46 @@ export class ColorTool extends Tool {
         let c = createInput({
             label: 'RGB Color (RRGGBB):',
             callback: (e) => {
-                if (e.target.value > 0){
-                this._ui.getEditor().selectedObject.change_color(e.target.value);
+                if (e.target.value > 0) {
+                    this._ui.getEditor().selectedObject.change_color(e.target.value);
                 }
             },
         });
         div.appendChild(c);
+
+        this._controls = div;
+    }
+}
+
+export class AddTool extends Tool {
+    constructor(ui) {
+        super(ui, 'Add');
+
+        let div = createDiv('control-div');
+        const options = ui.getEditor().shapes;
+        const materials = ui.getEditor().materials;
+
+        for (const obj in options) {
+            const callback = () => {
+                const variance = 5;
+                const random_offset = Mat4.translation(
+                    Math.random()*variance - variance/2,
+                    Math.random()*variance - variance/2,
+                    0,
+                );
+                console.log(random_offset);
+                const wo = new WorldObject(options[obj], random_offset, materials.phong);
+                ui.getEditor().worldObjects.push(wo);
+            };
+
+            div.appendChild(
+                createButton({
+                    label: obj,                    
+                    className: 'add-world-object-button',
+                    callback,
+                })
+            );
+        }
 
         this._controls = div;
     }
