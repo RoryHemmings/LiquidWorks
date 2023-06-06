@@ -2,6 +2,7 @@ import { createButton, createDiv, createInput } from './dom.js';
 import { WorldObject } from './world_object.js';
 
 import { defs, tiny } from './lib/common.js';
+import { ShapeFromFile } from './utils.js';
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
     Canvas_Widget
@@ -185,32 +186,53 @@ export class AddTool extends Tool {
     constructor(ui) {
         super(ui, 'Add');
 
+        this.variance = 5;
+
         let div = createDiv('control-div');
+
+        // Prebuild Objects
         const options = ui.getEditor().shapes;
-        const materials = ui.getEditor().materials;
-
         for (const obj in options) {
-            const callback = () => {
-                const variance = 5;
-                const random_offset = Mat4.translation(
-                    Math.random()*variance - variance/2,
-                    Math.random()*variance - variance/2,
-                    0,
-                );
-                console.log(random_offset);
-                const wo = new WorldObject(options[obj], random_offset, materials.phong);
-                ui.getEditor().worldObjects.push(wo);
-            };
-
             div.appendChild(
                 createButton({
                     label: obj,                    
                     className: 'add-world-object-button',
-                    callback,
+                    callback: () => this.addObject(obj),
                 })
             );
         }
 
+        // Import
+        div.appendChild(
+            createButton({
+                label: 'Import',                    
+                className: 'add-world-object-button',
+                callback: () => this.importObject(),
+            })
+        );
+
         this._controls = div;
+    }
+
+    addObject(obj) {
+        const options = this._ui.getEditor().shapes;
+        const materials = this._ui.getEditor().materials;
+
+        const random_offset = Mat4.translation(
+            Math.random()*this.variance - this.variance/2,
+            Math.random()*this.variance - this.variance/2,
+            0,
+        );
+
+        const wo = new WorldObject(options[obj], random_offset, materials.phong);
+        this._ui.getEditor().worldObjects.push(wo);
+    }
+
+    importObject() {
+        const filepath = 'teapot.obj';
+        const unique_name = crypto.randomUUID();
+
+        this._ui.getEditor().shapes[unique_name] = new ShapeFromFile(filepath);
+        this.addObject(unique_name);
     }
 }
