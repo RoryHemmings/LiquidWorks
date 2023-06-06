@@ -26,7 +26,10 @@ class Tool {
         let div = createDiv('tool');
         let button = document.createElement('button');
         button.innerHTML = this._displayName;
-        button.addEventListener('mousedown', () => this._ui.selectTool(this));
+        button.addEventListener("mousedown", e => { 
+        this._ui.selectTool(this);
+        this._ui.getEditor().set_mode(this._displayName);
+        });
 
         div.appendChild(button);
         return div;

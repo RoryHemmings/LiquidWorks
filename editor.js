@@ -33,10 +33,14 @@ class Editor extends Scene {
         this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        this.mode = "rotate";
+        this.mode = "Select";
 
         this.initialPos = [0, 0 ,0 ];
 
+    }
+
+    set_mode(mode) {
+        this.mode = mode;
     }
 
 
@@ -126,9 +130,6 @@ class Editor extends Scene {
             const angleY = Math.atan2(diffX, diffZ);
             const angleZ = Math.atan2(diffX, diffY);
 
-            console.log(angleX);
-            console.log(angleY);
-            console.log(angleZ);
 
             this.selectedObject.rotate_transform(angleX/180, 0, 0, 1);          //THIS MAKES NO SENSE :(((((((
             this.selectedObject.rotate_transform(angleY/180, 0, 1, 0);
@@ -160,14 +161,14 @@ class Editor extends Scene {
 
                 const rect = canvas.getBoundingClientRect();
 
-                if (this.mode == "select"){
+                if (this.mode == "Select"){
                     this.my_mouse_down_select(e, mouse_position(e), context, program_state);
                 }
-                else if (this.mode == "translate"){
+                else if (this.mode == "Transform"){
                     e.stopImmediatePropagation();
                     this.my_mouse_down_translate(e, mouse_position(e), context, program_state, true);
                 }
-                else if (this.mode == "rotate"){
+                else if (this.mode == "Rotate"){
                     e.stopImmediatePropagation();
                     this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, true);
                 }
@@ -177,7 +178,7 @@ class Editor extends Scene {
                 e.preventDefault();
 
                 if (isMouseDown){
-                    if (this.mode == "translate"){
+                    if (this.mode == "Transform"){
                         e.stopImmediatePropagation();
                         controls.enablePan = false;
                         var mouseX = e.clientX;
@@ -185,7 +186,7 @@ class Editor extends Scene {
 
                         this.my_mouse_down_translate(e, mouse_position(e), context, program_state, false);
                     }
-                    else if (this.mode == "rotate"){
+                    else if (this.mode == "Rotate"){
                         e.stopImmediatePropagation();
                         controls.enablePan = false;
 
