@@ -28,6 +28,7 @@ export default class UI {
             new Tools.RotateTool(this),
             new Tools.ScaleTool(this),
             new Tools.ColorTool(this),
+            new Tools.AddTool(this)
         ];
 
         this._tools.forEach(tool => {

@@ -1,4 +1,12 @@
-import { createDiv, createInput } from './dom.js';
+import { createButton, createDiv, createInput } from './dom.js';
+import { WorldObject } from './world_object.js';
+
+import { defs, tiny } from './lib/common.js';
+import { ShapeFromFile } from './utils.js';
+const {
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
+    Canvas_Widget
+} = tiny;
 
 class Tool {
     constructor(ui, displayName) {
@@ -158,7 +166,6 @@ export class ScaleTool extends Tool {
     }
 }
 
-
 export class ColorTool extends Tool {
     constructor(ui) {
         super(ui, 'Color');
@@ -167,13 +174,91 @@ export class ColorTool extends Tool {
         let c = createInput({
             label: 'RGB Color (RRGGBB):',
             callback: (e) => {
-                if (e.target.value > 0){
-                this._ui.getEditor().selectedObject.change_color(e.target.value);
+                if (e.target.value > 0) {
+                    this._ui.getEditor().selectedObject.change_color(e.target.value);
                 }
             },
         });
         div.appendChild(c);
 
         this._controls = div;
+    }
+}
+
+export class AddTool extends Tool {
+    constructor(ui) {
+        super(ui, 'Add');
+
+        this.variance = 5;
+
+        let div = createDiv('control-div');
+
+        // Prebuild Objects
+        const options = ui.getEditor().shapes;
+        for (const obj in options) {
+            div.appendChild(
+                createButton({
+                    label: obj,                    
+                    className: 'add-world-object-button',
+                    callback: () => this.addObject(obj),
+                })
+            );
+        }
+
+        // Import
+        div.appendChild(
+            createButton({
+                label: 'Import',                    
+                className: 'add-world-object-button',
+                callback: () => this.importObject(),
+            })
+        );
+
+        this._controls = div;
+    }
+
+    addObject(obj) {
+        const options = this._ui.getEditor().shapes;
+        const materials = this._ui.getEditor().materials;
+
+        const random_offset = Mat4.translation(
+            Math.random()*this.variance - this.variance/2,
+            Math.random()*this.variance - this.variance/2,
+            0,
+        );
+
+        const wo = new WorldObject(options[obj], random_offset, materials.phong);
+        this._ui.getEditor().worldObjects.push(wo);
+    }
+
+    async importObject() {
+        let filepath = '';
+        try { filepath = await this._chooseFile(); }
+        catch (e) { return; }
+
+        const unique_name = crypto.randomUUID();
+        this._ui.getEditor().shapes[unique_name] = new ShapeFromFile(filepath);
+        this.addObject(unique_name);
+    }
+
+    _chooseFile() {
+        return Promise((resolve, reject) => {
+            let tmp = document.createElement('input');
+            tmp.type = 'file';
+
+            tmp.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file === undefined) reject();
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const content = e.target.result(); 
+                    resolve(`url(${content})`);
+                };
+            };
+
+            tmp.click();
+        });
     }
 }

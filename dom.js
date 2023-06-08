@@ -25,3 +25,12 @@ export const createInput = ({ parentClassName='', label='', callback=()=>{} }) =
 
     return div;
 };
+
+export const createButton = ({ className='', label='', callback=()=>{} }) => {
+    let button = document.createElement('button');
+    button.innerHTML = label;
+    button.className = className;
+    button.addEventListener('mousedown', () => callback());
+
+    return button;
+};

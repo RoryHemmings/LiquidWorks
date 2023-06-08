@@ -6,7 +6,7 @@ const {
     Canvas_Widget
 } = tiny;
 
-const { Cube, Phong_Shader } = defs
+const { Torus, Subdivision_Sphere, Cube, Phong_Shader } = defs
 
 /* Base Scene */
 class Editor extends Scene {
@@ -15,6 +15,8 @@ class Editor extends Scene {
 
         this.shapes = {
             cube: new Cube(),
+            sphere: new Subdivision_Sphere(4),
+            torus: new Torus(30, 30),
         }
 
         this.materials = {
@@ -26,16 +28,15 @@ class Editor extends Scene {
             }),
         }
 
-
         this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
         this.worldObjects[0].translate_transform(500,500,500);
+        this.worldObjects[1].translate_transform(500,500,500);
         this.selectedObject = this.worldObjects[1];
         this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        this.mode = "Select";
-
-        this.initialPos = [0, 0 ,0 ];
+        this.mode = "rotate";
+        this.initialPos = [0, 0, 0];
 
     }
 
@@ -210,11 +211,11 @@ class Editor extends Scene {
         
         
         for (let obj of this.worldObjects) {
-            if (obj == this.selectedObject){
+            if (obj == this.selectedObject) {
                 obj.drawSelected(context, program_state);
             }
             else{
-            obj.draw(context, program_state);
+                obj.draw(context, program_state);
             }
         }
     }
