@@ -16,6 +16,8 @@ const setup = () => {
         make_code_nav: false,
         show_explanation: false,
     });
+
+    document.querySelector("#editor-canvas").style = "background-color: black; border: 2px solid gray;";
 };
 
 setup();
