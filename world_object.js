@@ -53,8 +53,6 @@ export class WorldObject {
         this.position[0] += dx;
         this.position[1] += dy;
         this.position[2] += dz;
-        //console.log(this._intersect_cube(this));
-        //console.log("HELLO");
     }
 
     // scale_transform(sx, sy, sz) {
@@ -69,11 +67,14 @@ export class WorldObject {
         this._transform = this._transform.times(Mat4.scale(dx, dy, dz));
     }
 
-    rotate_transform(rx, ry, rz, w) {
-        this._transform = this._transform.times(Mat4.rotation(rx, ry, rz, w));
-        this._rotation[0] += rx;
-        this._rotation[1] += ry;
-        this._rotation[2] += rz;
+    rotate_transform(angle, rx, ry, rz) {
+        this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
+        if (rx !== 0)
+            this._rotation[0] += angle;
+        if (ry !== 0)
+            this._rotation[1] += angle;
+        if (rz !== 0)
+            this._rotation[2] += angle;
     }
 
     change_color(color){
