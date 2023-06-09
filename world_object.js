@@ -53,17 +53,8 @@ export class WorldObject {
         this.position[0] += dx;
         this.position[1] += dy;
         this.position[2] += dz;
-        //console.log(this._intersect_cube(this));
-        //console.log("HELLO");
     }
 
-    // scale_transform(sx, sy, sz) {
-    //     this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
-
-    //     this._scale[0] += sx;
-    //     this._scale[1] += sy;
-    //     this._scale[2] += sz;
-    // }
 
     scale_transform(dx, dy, dz) {
         this._transform = this._transform.times(Mat4.scale(dx, dy, dz));
@@ -78,6 +69,11 @@ export class WorldObject {
 
     change_color(color){
         this._color = hex_color(color);
+    }
+
+    change_shader(shader){
+        this._shader = shader;
+
     }
 
 
@@ -226,8 +222,6 @@ export class WorldObject {
     }
 
     isLineIntersectingShape(point1, point2){
-        //console.log(this._shape.cube);
-        console.log(this.transform);
         if (this._shape_string == "cube"){
             return this.isLineIntersectingRectangularPrism(point1, point2);
         }
@@ -237,6 +231,10 @@ export class WorldObject {
         else if (this._shape_string == "torus"){
             return this.isLineIntersectingTorus(point1, point2);
         }
+        else if (this._shape_string == "custom"){
+            return this.isLineIntersectingRectangularPrism(point1, point2);
+        }
+        
     }
 
     calculateDistance(point) {
