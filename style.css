@@ -79,7 +79,4 @@ h1, p, button {
 .add-world-object-button input {
     appearance: initial;
     opacity: 0;
-    height: 100%;
-    width: 100%;
-    position: absolute;
 }

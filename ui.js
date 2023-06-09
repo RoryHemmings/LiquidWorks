@@ -18,6 +18,7 @@ export default class UI {
         this._tools = [];
         this._currentTool = null;
         this._editor = new Editor(this);
+        this._rotation_axes = [1, 0, 0];
 
         this._initializeTools();
         this.selectTool(this._tools[0]);
@@ -29,6 +30,14 @@ export default class UI {
 
     getCurrentTool() {
         return this._currentTool;
+    }
+
+    setRotationAxes(axes) {
+        this._rotation_axes = axes;
+    }
+
+    getRotationAxes() {
+        return this._rotation_axes;
     }
 
     updateTool(t) {

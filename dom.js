@@ -45,3 +45,14 @@ export const createFileInput = ({ className='', label='', callback=()=>{} }) => 
 
     return input;
 };
+
+export const createCheckbox = ({ className='', label='', callback=()=>{} }) => {
+    let input = document.createElement('input');
+    input.type = 'checkbox';
+    input.onchange = callback;
+
+    input.innerHTML = label;
+    input.className = className;
+
+    return input;
+};
