@@ -115,11 +115,11 @@ class Editor extends Scene {
         this.initialPos = [0, 0, 0];
 
 
-        this.children.push(this.axes_viewer = new Axes_Viewer());
+        // this.children.push(this.axes_viewer = new Axes_Viewer());
         // Scene defaults:
-        this.shapes = {box: new defs.Cube()};
-        const phong = new defs.Phong_Shader();
-        this.material = new Material(phong, {color: color(.8, .4, .8, 1)});
+        // this.shapes = {box: new defs.Cube()};
+        // const phong = new defs.Phong_Shader();
+        // this.material = new Material(phong, {color: color(.8, .4, .8, 1)});
 
     }
 
@@ -376,14 +376,14 @@ class Editor extends Scene {
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
 
 
-        this.shapes.box.draw(context, program_state, Mat4.scale(10, .1, .1), this.material);
-        this.shapes.box.draw(context, program_state, Mat4.scale(.1, 10, .1), this.material);
-        this.shapes.box.draw(context, program_state, Mat4.scale(.1, .1, 10), this.material);
+        // this.shapes.box.draw(context, program_state, Mat4.scale(10, .1, .1), this.material);
+        // this.shapes.box.draw(context, program_state, Mat4.scale(.1, 10, .1), this.material);
+        // this.shapes.box.draw(context, program_state, Mat4.scale(.1, .1, 10), this.material);
 
 
         // *********** How to use the Axes_Viewer ***********
         // First, reset the object:
-        this.axes_viewer.reset();
+        // this.axes_viewer.reset();
 
         for (let obj of this.worldObjects) {
             if (obj == this.selectedObject) {
