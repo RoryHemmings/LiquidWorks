@@ -49,7 +49,8 @@ export class WorldObject {
     }
 
     translate_transform(dx, dy, dz){
-        this._transform = this._transform.times(Mat4.translation(dx, dy, dz));
+        this._transform = this._transform.times(Mat4.translation(dx, dy, dz))
+
         this.position[0] += dx;
         this.position[1] += dy;
         this.position[2] += dz;
@@ -57,11 +58,11 @@ export class WorldObject {
 
     rotate_transform(angle, rx, ry, rz) {
         this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
-        if (rx !== 0)
+        if (rx === 1)
             this._rotation[0] += angle;
-        if (ry !== 0)
+        if (ry === 1)
             this._rotation[1] += angle;
-        if (rz !== 0)
+        if (rz === 1)
             this._rotation[2] += angle;
     }
 
@@ -71,7 +72,6 @@ export class WorldObject {
         this._scale[0] *= sx;
         this._scale[1] *= sy;
         this._scale[2] *= sz;
-        console.log(this._scale);
     }
 
     change_color(color){

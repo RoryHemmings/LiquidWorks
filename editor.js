@@ -125,8 +125,8 @@ class Editor extends Scene {
 
     my_mouse_down_rotate(e, pos, context, program_state, initial) {
         let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
-        let pos_ndc_far  = vec4(pos[0], pos[1],  1.0, 1.0);
-        let center_ndc_near = vec4(0.0, 0.0, -1.0, 1.0);
+        let pos_ndc_far  = vec4(pos[0], pos[1], -1.0, 1.0);
+        let center_ndc_near = vec4(0.0, 0.0, 1.0, 1.0);
         let P = program_state.projection_transform;
         let V = program_state.camera_inverse;
         let pos_world_near = Mat4.inverse(P.times(V)).times(pos_ndc_near);
@@ -144,14 +144,12 @@ class Editor extends Scene {
             const diffY = pos_world_near[1] - this.initialPos[1];
             const diffZ = pos_world_near[2] - this.initialPos[2];
 
-            const angleX = Math.atan2(diffY, diffZ);
-            const angleY = Math.atan2(diffX, diffZ);
+            const angleX = Math.atan2(diffX, diffZ);
+            const angleY = Math.atan2(diffY, diffZ);
             const angleZ = Math.atan2(diffX, diffY);
 
-
-            this.selectedObject.rotate_transform(angleX/180, 1, 0, 0);          //THIS MAKES NO SENSE :(((((((
-            this.selectedObject.rotate_transform(angleY/180, 0, 1, 0);
-            this.selectedObject.rotate_transform(angleZ/180, 0, 0, 1);
+            const [x, y, z] = this._ui.getRotationAxes();
+            this.selectedObject.rotate_transform(angleX*(2*Math.PI/180), x, y, z);          //THIS MAKES NO SENSE :(((((((
 
             this._ui.updateTool('rotate');
             this.initialPos = pos_world_near;
@@ -183,6 +181,7 @@ class Editor extends Scene {
             //console.log();
             this.selectedObject.scale_transform(1 + diffX*2, 1 + diffY*2, 1 + diffZ*2);
 
+            this._ui.updateTool('scale');
             this.initialPos = pos_world_near;
         }
     }

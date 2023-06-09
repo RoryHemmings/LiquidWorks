@@ -1,4 +1,4 @@
-import { createButton, createDiv, createFileInput, createInput } from './dom.js';
+import { createButton, createCheckbox, createDiv, createFileInput, createInput } from './dom.js';
 import { WorldObject } from './world_object.js';
 
 import { defs, tiny } from './lib/common.js';
@@ -9,7 +9,7 @@ const {
 } = tiny;
 
 function truncate(n) {
-    return Math.round(n*10000) / 10000;
+    return Math.round(n * 10000) / 10000;
 }
 
 const { Torus, Subdivision_Sphere, Cube, Phong_Shader, Textured_Phong } = defs
@@ -48,7 +48,7 @@ class Tool {
         let div = createDiv('tool');
         let button = document.createElement('button');
         button.innerHTML = this._displayName;
-        button.addEventListener("mousedown", e => { 
+        button.addEventListener("mousedown", e => {
             this._ui.selectTool(this);
             this._ui.getEditor().set_mode(this._displayName);
         });
@@ -71,7 +71,7 @@ export class SelectTool extends Tool {
     }
 
     setSelectedObject(obj) {
-        
+
     }
 }
 
@@ -154,6 +154,40 @@ export class RotateTool extends Tool {
             })
         );
 
+        const p = document.createElement('p');
+        p.innerHTML = 'Rotate about axes (x, y, z)';
+        div.appendChild(p);
+
+        const tmp = createCheckbox({
+            label: 'X',
+            callback: (e) => {
+                const [x, y, z] = this._ui.getRotationAxes();
+                this._ui.setRotationAxes([e.target.checked ? 1 : 0, y, z]);
+            },
+        });
+        tmp.checked = true;
+        div.appendChild(tmp);
+
+        div.appendChild(
+            createCheckbox({
+                label: 'Y',
+                callback: (e) => {
+                    const [x, y, z] = this._ui.getRotationAxes();
+                    this._ui.setRotationAxes([x, e.target.checked ? 1 : 0, z]);
+                },
+            })
+        );
+
+        div.appendChild(
+            createCheckbox({
+                label: 'Z',
+                callback: (e) => {
+                    const [x, y, z] = this._ui.getRotationAxes();
+                    this._ui.setRotationAxes([x, y, e.target.checked ? 1 : 0]);
+                },
+            })
+        );
+
         this._controls = div;
     }
 
@@ -166,16 +200,19 @@ export class RotateTool extends Tool {
         const obj = this.getSelectedObject();
         if (obj === undefined) return;
 
-        this._controls.childNodes[0].childNodes[1].setAttribute('value', truncate(obj.rotation[0] * (180/Math.PI)));
-        this._controls.childNodes[1].childNodes[1].setAttribute('value', truncate(obj.rotation[1] * (180/Math.PI)));
-        this._controls.childNodes[2].childNodes[1].setAttribute('value', truncate(obj.rotation[2] * (180/Math.PI)));
+        console.log("Here: ", obj.rotation);
+        this._controls.childNodes[0].childNodes[1].setAttribute('value', truncate(obj.rotation[0] * (180 / Math.PI)));
+        this._controls.childNodes[1].childNodes[1].setAttribute('value', truncate(obj.rotation[1] * (180 / Math.PI)));
+        this._controls.childNodes[2].childNodes[1].setAttribute('value', truncate(obj.rotation[2] * (180 / Math.PI)));
     }
 
     updateTransform(e, direction) {
         const obj = this.getSelectedObject();
         if (obj === undefined) return;
 
-        const target = e.target.value * (Math.PI/180);
+        const target = e.target.value * (Math.PI / 180);
+        console.log(target);
+        console.log(obj.rotation);
         const [x, y, z] = obj.rotation;
         switch (direction) {
             case 0: obj.rotate_transform(target - x, 1, 0, 0); break;
@@ -232,13 +269,14 @@ export class ScaleTool extends Tool {
         const obj = this.getSelectedObject();
         if (obj === undefined) return;
 
-        const target = e.target.value || 1;
+        const target = e.target.value;
+        if (target == 0) return;
         const [x, y, z] = obj.scale;
         if (x * y * z == 0) return; // if any variables are 0
         switch (direction) {
-            case 0: obj.scale_transform(target/x, 1, 1); break;
-            case 1: obj.scale_transform(1, target/y, 1); break;
-            case 2: obj.scale_transform(1, 1, target/z); break;
+            case 0: obj.scale_transform(target / x, 1, 1); break;
+            case 1: obj.scale_transform(1, target / y, 1); break;
+            case 2: obj.scale_transform(1, 1, target / z); break;
         };
     }
 }
@@ -259,7 +297,7 @@ export class ColorTool extends Tool {
 
         div.appendChild(
             createButton({
-                label: "Phong Shader",                    
+                label: "Phong Shader",
                 className: 'phong-color-button',
                 callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.phong),
             })
@@ -267,7 +305,7 @@ export class ColorTool extends Tool {
 
         div.appendChild(
             createButton({
-                label: "Gouraud Shader",                    
+                label: "Gouraud Shader",
                 className: 'gouraud-color-button',
                 callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.gouraud),
             })
@@ -276,7 +314,7 @@ export class ColorTool extends Tool {
         // Import
         div.appendChild(
             createFileInput({
-                label: 'Import',                    
+                label: 'Import',
                 className: 'add-world-object-button',
                 callback: (e) => this.importMaterial(e),
             })
@@ -286,7 +324,7 @@ export class ColorTool extends Tool {
     }
 
     addMaterial(path) {
-        const mat =  new Material(new Textured_Phong(), {
+        const mat = new Material(new Textured_Phong(), {
             color: hex_color("#000000"),
             ambient: 1,
             texture: new Texture(path, "LINEAR_MIPMAP_LINEAR")
@@ -312,7 +350,7 @@ export class ColorTool extends Tool {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (e) => {
-                const content = e.target.result; 
+                const content = e.target.result;
                 const link = document.createElement('a');
                 link.href = content;
                 resolve(link);
@@ -334,7 +372,7 @@ export class AddTool extends Tool {
         for (const obj in options) {
             div.appendChild(
                 createButton({
-                    label: obj,                    
+                    label: obj,
                     className: 'add-world-object-button',
                     callback: () => this.addObject(options[obj], obj),
                 })
@@ -347,7 +385,7 @@ export class AddTool extends Tool {
         container.appendChild(tmp);
         container.appendChild(
             createFileInput({
-                label: 'Import',                    
+                label: 'Import',
                 callback: (e) => this.importObject(e)
             }),
         );
@@ -358,13 +396,13 @@ export class AddTool extends Tool {
         this._controls = div;
     }
 
-    addObject(obj, label="custom") {
+    addObject(obj, label = "custom") {
         const options = this._ui.getEditor().shapes;
         const materials = this._ui.getEditor().materials;
 
         const random_offset = Mat4.translation(
-            Math.random()*this.variance - this.variance/2,
-            Math.random()*this.variance - this.variance/2,
+            Math.random() * this.variance - this.variance / 2,
+            Math.random() * this.variance - this.variance / 2,
             0,
         );
 
@@ -388,7 +426,7 @@ export class AddTool extends Tool {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (e) => {
-                const content = e.target.result; 
+                const content = e.target.result;
                 const link = document.createElement('a');
                 link.href = content;
                 resolve(link);
