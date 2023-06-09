@@ -1,4 +1,4 @@
-import { createButton, createDiv, createInput } from './dom.js';
+import { createButton, createDiv, createFileInput, createInput } from './dom.js';
 import { WorldObject } from './world_object.js';
 
 import { defs, tiny } from './lib/common.js';
@@ -48,15 +48,11 @@ export class SelectTool extends Tool {
     constructor(ui) {
         super(ui, 'Select');
 
-        let div = createDiv('control-div');
-        let c = createInput({
-            label: 'Select:',
-            callback: (e) => {
-                console.log(e.target.value);
-            },
-        });
-        div.appendChild(c);
+        const div = createDiv('control-div');
+        const p = document.createElement('p');
+        p.innerHTML = 'none';
 
+        div.appendChild(p);
         this._controls = div;
     }
 
@@ -143,8 +139,6 @@ export class RotateTool extends Tool {
 
         this._controls = div;
     }
-
-    
 }
 
 export class ScaleTool extends Tool {
@@ -220,24 +214,24 @@ export class AddTool extends Tool {
                 createButton({
                     label: obj,                    
                     className: 'add-world-object-button',
-                    callback: () => this.addObject(obj),
+                    callback: () => this.addObject(options[obj], obj),
                 })
             );
         }
 
         // Import
         div.appendChild(
-            createButton({
+            createFileInput({
                 label: 'Import',                    
                 className: 'add-world-object-button',
-                callback: () => this.importObject(),
+                callback: (e) => this.importObject(e),
             })
         );
 
         this._controls = div;
     }
 
-    addObject(obj) {
+    addObject(obj, label="custom") {
         const options = this._ui.getEditor().shapes;
         const materials = this._ui.getEditor().materials;
 
@@ -246,40 +240,32 @@ export class AddTool extends Tool {
             Math.random()*this.variance - this.variance/2,
             0,
         );
-        console.log(obj);
 
-        const wo = new WorldObject(options[obj], random_offset, materials.phong, obj);
+        const wo = new WorldObject(obj, random_offset, materials.phong, label);
         this._ui.getEditor().worldObjects.push(wo);
     }
 
-    async importObject() {
+    async importObject(e) {
         let filepath = '';
-        try { filepath = await this._chooseFile(); }
-        catch (e) { return; }
+        try { filepath = await this._chooseFile(e); }
+        catch (err) { return; }
 
-        const unique_name = crypto.randomUUID();
-        this._ui.getEditor().shapes[unique_name] = new ShapeFromFile(filepath);
-        this.addObject(unique_name);
+        this.addObject(new ShapeFromFile(filepath));
     }
 
-    _chooseFile() {
-        return Promise((resolve, reject) => {
-            let tmp = document.createElement('input');
-            tmp.type = 'file';
+    _chooseFile(e) {
+        return new Promise((resolve, reject) => {
+            const file = e.target.files[0];
+            if (file === undefined) reject();
 
-            tmp.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file === undefined) reject();
-
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const content = e.target.result(); 
-                    resolve(`url(${content})`);
-                };
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const content = e.target.result; 
+                const link = document.createElement('a');
+                link.href = content;
+                resolve(link);
             };
-
-            tmp.click();
         });
     }
 }

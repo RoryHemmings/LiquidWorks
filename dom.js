@@ -34,3 +34,14 @@ export const createButton = ({ className='', label='', callback=()=>{} }) => {
 
     return button;
 };
+
+export const createFileInput = ({ className='', label='', callback=()=>{} }) => {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = callback;
+
+    input.innerHTML = label;
+    input.className = className;
+
+    return input;
+};
