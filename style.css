@@ -46,7 +46,7 @@ h1, p, button {
     padding: 1rem;
     width: 100%;
     color: white;
-    border: white solid 1px;
+    border: 1px solid white;
 }
 
 .tool button:hover {
@@ -66,4 +66,20 @@ h1, p, button {
     margin: 2rem 0;
     width: 8rem;
     height: 5rem;
+    background-color: gray;
+    border: 1px solid white;
+    text-align: center;
+    font-size: 13px;
+}
+
+.add-world-object-button:hover {
+    outline: 2px solid white;
+}
+
+.add-world-object-button input {
+    appearance: initial;
+    opacity: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }

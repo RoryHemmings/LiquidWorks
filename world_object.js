@@ -14,7 +14,7 @@ export class WorldObject {
         this._transform = transform;
         this._shader = shader;
         this._position = [this.transform[0][3], this.transform[1][3], this.transform[2][3]];
-        this._scale = [0, 0, 0];
+        this._scale = [1, 1, 1];
         this._rotation = [0, 0, 0];
         this._color = hex_color("#FFFFFF");
     }
@@ -55,18 +55,6 @@ export class WorldObject {
         this.position[2] += dz;
     }
 
-    // scale_transform(sx, sy, sz) {
-    //     this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
-
-    //     this._scale[0] += sx;
-    //     this._scale[1] += sy;
-    //     this._scale[2] += sz;
-    // }
-
-    scale_transform(dx, dy, dz) {
-        this._transform = this._transform.times(Mat4.scale(dx, dy, dz));
-    }
-
     rotate_transform(angle, rx, ry, rz) {
         this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
         if (rx !== 0)
@@ -77,10 +65,18 @@ export class WorldObject {
             this._rotation[2] += angle;
     }
 
+    scale_transform(sx, sy, sz) {
+        this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
+
+        this._scale[0] *= sx;
+        this._scale[1] *= sy;
+        this._scale[2] *= sz;
+        console.log(this._scale);
+    }
+
     change_color(color){
         this._color = hex_color(color);
     }
-
 
     isLineIntersectingRectangularPrism(point1, point2) {            //CURRENTLY DOES NOT WORK WITH ROTATION KIND OF
         let prismCenter = this.position;
