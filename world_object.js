@@ -7,6 +7,14 @@ const {
 
 const { Cube, Phong_Shader } = defs
 
+
+
+function darkenColor(vec4, value) {
+    const [r, g, b, a] = vec4;
+    return [r - value, g - value, b - value, a];
+}
+  
+
 export class WorldObject {
     constructor(shape, transform, shader, string) {
         this._shape = shape;
@@ -14,7 +22,7 @@ export class WorldObject {
         this._transform = transform;
         this._shader = shader;
         this._position = [this.transform[0][3], this.transform[1][3], this.transform[2][3]];
-        this._scale = [1, 1, 1];
+        this._scale = [0, 0, 0];
         this._rotation = [0, 0, 0];
         this._color = hex_color("#FFFFFF");
     }
@@ -55,23 +63,16 @@ export class WorldObject {
         this.position[2] += dz;
     }
 
-    rotate_transform(angle, rx, ry, rz) {
-        this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
-        if (rx !== 0)
-            this._rotation[0] += angle;
-        if (ry !== 0)
-            this._rotation[1] += angle;
-        if (rz !== 0)
-            this._rotation[2] += angle;
+
+    scale_transform(dx, dy, dz) {
+        this._transform = this._transform.times(Mat4.scale(dx, dy, dz));
     }
 
-    scale_transform(sx, sy, sz) {
-        this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
-
-        this._scale[0] *= sx;
-        this._scale[1] *= sy;
-        this._scale[2] *= sz;
-        console.log(this._scale);
+    rotate_transform(rx, ry, rz, w) {
+        this._transform = this._transform.times(Mat4.rotation(rx, ry, rz, w));
+        this._rotation[0] += rx;
+        this._rotation[1] += ry;
+        this._rotation[2] += rz;
     }
 
     change_color(color){
@@ -82,6 +83,7 @@ export class WorldObject {
         this._shader = shader;
 
     }
+
 
     isLineIntersectingRectangularPrism(point1, point2) {
         let prismCenter = this.position;
@@ -98,25 +100,25 @@ export class WorldObject {
         const max_y = prismCenter[1] + scaleY ;
         const min_z = prismCenter[2] - scaleZ ;
         const max_z = prismCenter[2] + scaleZ ;
-
+      
         const direction = [
           point2[0] - point1[0],
           point2[1] - point1[1],
           point2[2] - point1[2]
         ];
-
+      
         const distance = Math.sqrt(
           direction[0] * direction[0] +
           direction[1] * direction[1] +
           direction[2] * direction[2]
         );
-
+      
         const normalizedDirection = [
           direction[0] / distance,
           direction[1] / distance,
           direction[2] / distance
         ];
-
+      
         const tValues = [
           (min_x - point1[0]) / normalizedDirection[0],
           (max_x - point1[0]) / normalizedDirection[0],
@@ -125,19 +127,19 @@ export class WorldObject {
           (min_z - point1[2]) / normalizedDirection[2],
           (max_z - point1[2]) / normalizedDirection[2]
         ];
-
+      
         const tMin = Math.max(
           Math.min(tValues[0], tValues[1]),
           Math.min(tValues[2], tValues[3]),
           Math.min(tValues[4], tValues[5])
         );
-
+      
         const tMax = Math.min(
           Math.max(tValues[0], tValues[1]),
           Math.max(tValues[2], tValues[3]),
           Math.max(tValues[4], tValues[5])
         );
-
+      
         if (tMin <= tMax && tMax >= 0 && tMin <= distance) {
           return true;
         } else {
@@ -251,9 +253,13 @@ export class WorldObject {
         this._shape.draw(context, program_state, this._transform, this._shader.override({color: this._color}));
     }
 
+
     drawSelected(context, program_state) {
         const green = hex_color("#00FF00");
-        const gray = hex_color("#FFFFFF");
-        this._shape.draw(context, program_state, this._transform, this._shader.override({color: green}));
+
+        const color = this._color; 
+        const darkenedColor = darkenColor(color, .5); 
+        
+        this._shape.draw(context, program_state, this._transform, this._shader.override({color: darkenedColor}));
     }
 }
