@@ -71,6 +71,11 @@ export class WorldObject {
         this._color = hex_color(color);
     }
 
+    change_shader(shader){
+        this._shader = shader;
+
+    }
+
 
     isLineIntersectingRectangularPrism(point1, point2) {
         let prismCenter = this.position;
