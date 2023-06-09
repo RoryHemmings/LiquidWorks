@@ -49,14 +49,25 @@ export class WorldObject {
     }
 
     translate_transform(dx, dy, dz){
-        this._transform = this._transform.times(Mat4.translation(dx, dy, dz))
+
+        let matrix = this._transform;
+
+        matrix[0][3] += dx;
+        matrix[1][3] += dy;
+        matrix[2][3] += dz;
+
+        this._transform = matrix;
+
 
         this.position[0] += dx;
         this.position[1] += dy;
         this.position[2] += dz;
+
+
     }
 
     rotate_transform(angle, rx, ry, rz) {
+        console.log(this.transform);
         this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
         if (rx === 1)
             this._rotation[0] += angle;
