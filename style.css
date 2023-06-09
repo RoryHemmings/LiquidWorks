@@ -55,3 +55,10 @@ h1, p, button {
 .tool-unselected {
     background-color: red;
 }
+
+.add-world-object-button {
+    display: block;
+    margin: 2rem 0;
+    width: 8rem;
+    height: 5rem;
+}
