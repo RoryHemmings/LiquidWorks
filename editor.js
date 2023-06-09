@@ -28,14 +28,13 @@ class Editor extends Scene {
             }),
         }
 
-        this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong), ];
+        this.worldObjects = [ new WorldObject(this.shapes.cube, Mat4.identity(), this.materials.phong, "cube")];
         this.worldObjects[0].translate_transform(500,500,500);
-        this.worldObjects[1].translate_transform(500,500,500);
-        this.selectedObject = this.worldObjects[1];
+        this.selectedObject = this.worldObjects[0];
         this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        this.mode = "rotate";
+        this.mode = "select";
         this.initialPos = [0, 0, 0];
 
     }
@@ -58,23 +57,38 @@ class Editor extends Scene {
         pos_world_far.scale_by(1 / pos_world_far[3]);
         center_world_near.scale_by(1 / center_world_near[3]);
 
-       let found = false;
 
-         for (let obj of this.worldObjects) {
-             if (obj.isLineIntersectingRectangularPrism(pos_world_near, pos_world_far)) {
-                found = true;
-                if (this.selectedObject == this.worldObjects[0]){
-                    this.selectedObject = obj;
-                    this.selected = true;
+        let intersectedObjects = [];
+        let closestObject = null;
+        let closestDistance = Infinity;
+
+        for (let obj of this.worldObjects) {
+            if (obj.isLineIntersectingShape(pos_world_near, pos_world_far)) {
+                intersectedObjects.push(obj);
+                
+                const distance = obj.calculateDistance(pos_world_near);
+                
+                if (distance < closestDistance) {
+                    closestObject = obj;
+                    closestDistance = distance;
                 }
-                else {
-                    this.selected = false;
-                }
-             }
-         }
-         if ((!this.selected) || (!found)){
+            }
+        }
+
+        if (intersectedObjects.length > 0) {
+            if (this.selectedObject == closestObject){
+                this.selectedObject = this.worldObjects[0];
+                this.selected = false;
+            }
+            else{
+                this.selectedObject = closestObject;
+                this.selected = true;
+            }
+        } 
+        else {
             this.selectedObject = this.worldObjects[0];
-         }
+            this.selected = false;
+        }
 
     }
 

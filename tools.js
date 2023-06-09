@@ -152,15 +152,35 @@ export class ScaleTool extends Tool {
         super(ui, 'Scale');
 
         let div = createDiv('control-div');
-        let c = createInput({
-            label: 'Scale:',
+        let c1 = createInput({
+            label: 'ScaleX:',
             callback: (e) => {
                 if (e.target.value > 0){
-                this._ui.getEditor().selectedObject.scale_transform(e.target.value);
+                this._ui.getEditor().selectedObject.scale_transform(e.target.value, 1, 1);
                 }
             },
         });
-        div.appendChild(c);
+        div.appendChild(c1);
+
+        let c2 = createInput({
+            label: 'ScaleY:',
+            callback: (e) => {
+                if (e.target.value > 0){
+                this._ui.getEditor().selectedObject.scale_transform(1, e.target.value, 1);
+                }
+            },
+        });
+        div.appendChild(c2);
+
+        let c3 = createInput({
+            label: 'ScaleZ:',
+            callback: (e) => {
+                if (e.target.value > 0){
+                this._ui.getEditor().selectedObject.scale_transform(1, 1, e.target.value);
+                }
+            },
+        });
+        div.appendChild(c3);
 
         this._controls = div;
     }
@@ -226,8 +246,9 @@ export class AddTool extends Tool {
             Math.random()*this.variance - this.variance/2,
             0,
         );
+        console.log(obj);
 
-        const wo = new WorldObject(options[obj], random_offset, materials.phong);
+        const wo = new WorldObject(options[obj], random_offset, materials.phong, obj);
         this._ui.getEditor().worldObjects.push(wo);
     }
 
