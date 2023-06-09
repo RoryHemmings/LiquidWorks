@@ -154,6 +154,35 @@ class Editor extends Scene {
         }
     }
 
+
+    my_mouse_down_scale(e, pos, context, program_state, initial) {
+        let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
+        let pos_ndc_far  = vec4(pos[0], pos[1],  1.0, 1.0);
+        let center_ndc_near = vec4(0.0, 0.0, -1.0, 1.0);
+        let P = program_state.projection_transform;
+        let V = program_state.camera_inverse;
+        let pos_world_near = Mat4.inverse(P.times(V)).times(pos_ndc_near);
+        let pos_world_far  = Mat4.inverse(P.times(V)).times(pos_ndc_far);
+        let center_world_near  = Mat4.inverse(P.times(V)).times(center_ndc_near);
+        pos_world_near.scale_by(1 / pos_world_near[3]);
+        pos_world_far.scale_by(1 / pos_world_far[3]);
+        center_world_near.scale_by(1 / center_world_near[3]);
+
+        if (initial){
+            this.initialPos = pos_world_near;
+        }
+        else {
+            const diffX = pos_world_near[0] - this.initialPos[0];
+            const diffY = pos_world_near[1] - this.initialPos[1];
+            const diffZ = pos_world_near[2] - this.initialPos[2];
+
+            //console.log();
+            this.selectedObject.scale_transform(1 + diffX*2, 1 + diffY*2, 1 + diffZ*2);
+
+            this.initialPos = pos_world_near;
+        }
+    }
+
     
     display(context, program_state) {
         let isMouseDown = false;
@@ -187,6 +216,10 @@ class Editor extends Scene {
                     e.stopImmediatePropagation();
                     this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, true);
                 }
+                else if (this.mode == "Scale"){
+                    e.stopImmediatePropagation();
+                    this.my_mouse_down_scale(e, mouse_position(e), context, program_state, true);
+                }
             });
 
             canvas.addEventListener("mousemove", e => {
@@ -206,6 +239,14 @@ class Editor extends Scene {
                         controls.enablePan = false;
 
                         this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, false);
+                    }
+                    if (this.mode == "Scale"){
+                        e.stopImmediatePropagation();
+                        controls.enablePan = false;
+                        var mouseX = e.clientX;
+                        var mouseY = e.clientY;
+
+                        this.my_mouse_down_scale(e, mouse_position(e), context, program_state, false);
                     }
                 }
             });
