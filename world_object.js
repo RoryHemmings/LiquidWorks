@@ -81,7 +81,111 @@ export class WorldObject {
     }
 
 
-    isLineIntersectingRectangularPrism(point1, point2) {            //CURRENTLY DOES NOT WORK WITH ROTATION KIND OF
+    isLineIntersectingRectangularPrism(point1, point2) {
+        let prismCenter = this.position;
+        let matrix = this.transform;
+
+
+        let scaleX =  matrix[0][0];
+        let scaleY = matrix[1][1];
+        let scaleZ = matrix[2][2];
+
+        const min_x = prismCenter[0] - scaleX ;
+        const max_x = prismCenter[0] + scaleX ;
+        const min_y = prismCenter[1] - scaleY ;
+        const max_y = prismCenter[1] + scaleY ;
+        const min_z = prismCenter[2] - scaleZ ;
+        const max_z = prismCenter[2] + scaleZ ;
+      
+        // Calculate the direction vector of the line segment
+        const direction = [
+          point2[0] - point1[0],
+          point2[1] - point1[1],
+          point2[2] - point1[2]
+        ];
+      
+        // Calculate the distance between the two points
+        const distance = Math.sqrt(
+          direction[0] * direction[0] +
+          direction[1] * direction[1] +
+          direction[2] * direction[2]
+        );
+      
+        // Normalize the direction vector
+        const normalizedDirection = [
+          direction[0] / distance,
+          direction[1] / distance,
+          direction[2] / distance
+        ];
+      
+        // Calculate the parameter t values for the intersection with each face of the prism
+        const tValues = [
+          (min_x - point1[0]) / normalizedDirection[0],
+          (max_x - point1[0]) / normalizedDirection[0],
+          (min_y - point1[1]) / normalizedDirection[1],
+          (max_y - point1[1]) / normalizedDirection[1],
+          (min_z - point1[2]) / normalizedDirection[2],
+          (max_z - point1[2]) / normalizedDirection[2]
+        ];
+      
+        // Find the largest minimum t value and the smallest maximum t value
+        const tMin = Math.max(
+          Math.min(tValues[0], tValues[1]),
+          Math.min(tValues[2], tValues[3]),
+          Math.min(tValues[4], tValues[5])
+        );
+      
+        const tMax = Math.min(
+          Math.max(tValues[0], tValues[1]),
+          Math.max(tValues[2], tValues[3]),
+          Math.max(tValues[4], tValues[5])
+        );
+      
+        // Check if the line segment intersects the prism
+        if (tMin <= tMax && tMax >= 0 && tMin <= distance) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      
+
+
+    isLineIntersectingSphere(point1, point2) {
+        let center = this.position;
+        let matrix = this.transform;
+      
+        let scaleX = matrix[0][0];
+        let scaleY = matrix[1][1];
+        let scaleZ = matrix[2][2];
+      
+        const dx = point2[0] - point1[0];
+        const dy = point2[1] - point1[1];
+        const dz = point2[2] - point1[2];
+      
+        const scaledDx = dx / scaleX;
+        const scaledDy = dy / scaleY;
+        const scaledDz = dz / scaleZ;
+      
+        const a = (scaledDx ** 2) + (scaledDy ** 2) + (scaledDz ** 2);
+        const b = 2 * (
+          ((point1[0] - center[0]) / scaleX) * scaledDx +
+          ((point1[1] - center[1]) / scaleY) * scaledDy +
+          ((point1[2] - center[2]) / scaleZ) * scaledDz
+        );
+        const c = (
+          ((point1[0] - center[0]) / scaleX) ** 2 +
+          ((point1[1] - center[1]) / scaleY) ** 2 +
+          ((point1[2] - center[2]) / scaleZ) ** 2
+        ) - 1;
+      
+        const discriminant = b * b - 4 * a * c;
+      
+        return discriminant >= 0;
+      
+    }
+
+    isLineIntersectingTorus(point1, point2) {
         let prismCenter = this.position;
         let matrix = this.transform;
 
@@ -94,10 +198,10 @@ export class WorldObject {
 
         for (let i = 0; i < 3; i++) {
             if (point1[i] < prismMin[i] && point2[i] < prismMin[i]) {
-                continue;
+            continue;
             }
             if (point1[i] > prismMax[i] && point2[i] > prismMax[i]) {
-                continue;
+            continue;
             }
 
             const t = (prismMax[i] - point1[i]) / (point2[i] - point1[i]);
@@ -105,103 +209,20 @@ export class WorldObject {
 
             let isInside = true;
             for (let j = 0; j < 3; j++) {
-                if (j === i) {
-                    continue;
-                }
-                if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
-                    isInside = false;
-                    break;
-                }
+            if (j === i) {
+                continue;
+            }
+            if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
+                isInside = false;
+                break;
+            }
             }
             if (isInside) {
-                return true; 
+            return true; 
             }
         }
 
         return false; 
-    }
-
-    isLineIntersectingSphere(point1, point2) {
-        let center = this.position;
-        let matrix = this.transform;
-
-        let scaleX =  matrix[0][0];
-        let scaleY = matrix[1][1];
-        let scaleZ = matrix[2][2];
-
-        const dx = point2[0] - point1[0];
-        const dy = point2[1] - point1[1];
-        const dz = point2[2] - point1[2];
-      
-        const scaledDx = dx * scaleX;
-        const scaledDy = dy * scaleY;
-        const scaledDz = dz * scaleZ;
-      
-        const a = (scaledDx ** 2) + (scaledDy ** 2) + (scaledDz ** 2);
-        const b = 2 * (
-          ((point1[0] - center[0]) * scaledDx) +
-          ((point1[1] - center[1]) * scaledDy) +
-          ((point1[2] - center[2]) * scaledDz)
-        );
-        const c = (
-          ((point1[0] - center[0]) ** 2) +
-          ((point1[1] - center[1]) ** 2) +
-          ((point1[2] - center[2]) ** 2)
-        ) - 1;
-      
-        const discriminant = b * b - 4 * a * c;
-      
-        return discriminant >= 0;
-    }
-
-    isLineIntersectingTorus(point1, point2) {
-        let center = this.position;
-        let matrix = this.transform;
-
-        let scaleX =  matrix[0][0];
-        let scaleY = matrix[1][1];
-        let scaleZ = matrix[2][2];
-
-        const majorRadius = Math.max(scaleX, scaleY, scaleZ);
-        const minorRadius = Math.min(scaleX, scaleY, scaleZ) / 2;
-
-        const dx = point2[0] - point1[0];
-        const dy = point2[1] - point1[1];
-        const dz = point2[2] - point1[2];
-      
-        const a = (dx ** 2) + (dy ** 2) + (dz ** 2);
-        const b = 2 * (
-          ((point1[0] - center[0]) * dx) +
-          ((point1[1] - center[1]) * dy) +
-          ((point1[2] - center[2]) * dz)
-        );
-        const c =
-          ((point1[0] - center[0]) ** 2) +
-          ((point1[1] - center[1]) ** 2) +
-          ((point1[2] - center[2]) ** 2) -
-          (majorRadius ** 2) -
-          (minorRadius ** 2);
-      
-        const discriminant = b * b - 4 * a * c;
-      
-        if (discriminant < 0) {
-          return false; // No intersection with the torus surface
-        }
-      
-        // Calculate the z-coordinate of the intersection point
-        const t = (-b - Math.sqrt(discriminant)) / (2 * a);
-        const intersectionZ = point1[2] + t * dz;
-      
-        const holeRadius = minorRadius * .55 ; // Adjust the hole radius as needed
-      
-        // Calculate the distance of the intersection point from the center in the xy-plane
-        const intersectionDistance = Math.sqrt((point1[0] + t * dx - center[0]) ** 2 + (point1[1] + t * dy - center[1]) ** 2);
-      
-        if (intersectionDistance < holeRadius && Math.abs(intersectionZ) > minorRadius) {
-          return false; // Intersection within the torus hole
-        }
-      
-        return true; // Intersection with the torus surface (outside the hole)
     }
 
     isLineIntersectingShape(point1, point2){
