@@ -12,6 +12,8 @@ function truncate(n) {
     return Math.round(n*10000) / 10000;
 }
 
+const { Torus, Subdivision_Sphere, Cube, Phong_Shader, Textured_Phong } = defs
+
 class Tool {
     constructor(ui, displayName) {
         this._ui = ui;
@@ -241,22 +243,81 @@ export class ScaleTool extends Tool {
     }
 }
 
+
+
 export class ColorTool extends Tool {
     constructor(ui) {
-        super(ui, 'Color');
+        super(ui, 'Color/Texture');
 
         let div = createDiv('control-div');
-        let c = createInput({
-            label: 'RGB Color (RRGGBB):',
-            callback: (e) => {
-                if (e.target.value > 0) {
-                    this._ui.getEditor().selectedObject.change_color(e.target.value);
-                }
-            },
+        let c = document.createElement('input');
+        c.type = 'color';
+        c.addEventListener('change', (e) => {
+            this._ui.getEditor().selectedObject.change_color(e.target.value);
         });
         div.appendChild(c);
 
+        div.appendChild(
+            createButton({
+                label: "Phong Shader",                    
+                className: 'phong-color-button',
+                callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.phong),
+            })
+        );
+
+        div.appendChild(
+            createButton({
+                label: "Gouraud Shader",                    
+                className: 'gouraud-color-button',
+                callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.gouraud),
+            })
+        );
+
+        // Import
+        div.appendChild(
+            createFileInput({
+                label: 'Import',                    
+                className: 'add-world-object-button',
+                callback: (e) => this.importMaterial(e),
+            })
+        );
+
         this._controls = div;
+    }
+
+    addMaterial(path) {
+        const mat =  new Material(new Textured_Phong(), {
+            color: hex_color("#000000"),
+            ambient: 1,
+            texture: new Texture(path, "LINEAR_MIPMAP_LINEAR")
+        });
+
+        this._ui.getEditor().selectedObject.change_shader(mat);
+        this._ui.getEditor().selectedObject.change_color("000000");
+    }
+
+    async importMaterial(e) {
+        let filepath = '';
+        try { filepath = await this._chooseFile(e); }
+        catch (err) { return; }
+
+        this.addMaterial(filepath);
+    }
+
+    _chooseFile(e) {
+        return new Promise((resolve, reject) => {
+            const file = e.target.files[0];
+            if (file === undefined) reject();
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const content = e.target.result; 
+                const link = document.createElement('a');
+                link.href = content;
+                resolve(link);
+            };
+        });
     }
 }
 
