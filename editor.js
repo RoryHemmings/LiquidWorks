@@ -44,7 +44,6 @@ class Editor extends Scene {
         this.mode = mode;
     }
 
-
     my_mouse_down_select(e, pos, context, program_state) {
         let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
         let pos_ndc_far  = vec4(pos[0], pos[1],  1.0, 1.0);
