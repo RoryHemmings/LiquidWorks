@@ -22,7 +22,7 @@ export class WorldObject {
         this._transform = transform;
         this._shader = shader;
         this._position = [this.transform[0][3], this.transform[1][3], this.transform[2][3]];
-        this._scale = [0, 0, 0];
+        this._scale = [1, 1, 1];
         this._rotation = [0, 0, 0];
         this._color = hex_color("#FFFFFF");
     }
@@ -75,8 +75,11 @@ export class WorldObject {
     }
 
     rotate_transform(angle, rx, ry, rz) {
-        console.log(this.transform);
-        this._transform = this._transform.times(Mat4.rotation(angle, rx, ry, rz))
+        const [sx, sy, sz] = this._scale;
+        this._transform = this._transform
+            .times(Mat4.scale(1/sx, 1/sy, 1/sz))
+            .times(Mat4.rotation(angle, rx, ry, rz))
+            .times(Mat4.scale(sx, sy, sz));
         if (rx === 1)
             this._rotation[0] += angle;
         if (ry === 1)
