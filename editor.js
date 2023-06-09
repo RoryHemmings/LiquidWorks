@@ -77,7 +77,7 @@ class Editor extends Scene {
 
         if (intersectedObjects.length > 0) {
             if (this.selectedObject == closestObject){
-                this.selectedObject = this.worldObjects[0];
+                this.selectedObject = undefined;
                 this.selected = false;
             }
             else{
@@ -86,7 +86,7 @@ class Editor extends Scene {
             }
         } 
         else {
-            this.selectedObject = this.worldObjects[0];
+            this.selectedObject = undefined;
             this.selected = false;
         }
 
