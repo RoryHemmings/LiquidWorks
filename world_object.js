@@ -57,6 +57,13 @@ export class WorldObject {
         //console.log("HELLO");
     }
 
+    // scale_transform(sx, sy, sz) {
+    //     this._transform = this._transform.times(Mat4.scale(sx, sy, sz));
+
+    //     this._scale[0] += sx;
+    //     this._scale[1] += sy;
+    //     this._scale[2] += sz;
+    // }
 
     scale_transform(dx, dy, dz) {
         this._transform = this._transform.times(Mat4.scale(dx, dy, dz));
@@ -78,48 +85,40 @@ export class WorldObject {
         let prismCenter = this.position;
         let matrix = this.transform;
 
+        let prismSides =  [2 * matrix[0][0], 2 * matrix[1][1], 2 * matrix[2][2]];
 
-        let scaleX =  matrix[0][0];
-        let scaleY = matrix[1][1];
-        let scaleZ = matrix[2][2];
+        const halfSides = prismSides.map(side => side / 2);
 
-        const transformedPoint1 = [
-            (point1[0] - prismCenter[0]) / scaleX,
-            (point1[1] - prismCenter[1]) / scaleY,
-            (point1[2] - prismCenter[2]) / scaleZ
-        ];
-          
-        const transformedPoint2 = [
-            (point2[0] - prismCenter[0]) / scaleX,
-            (point2[1] - prismCenter[1]) / scaleY,
-            (point2[2] - prismCenter[2]) / scaleZ
-        ];
-          
-        const halfLengthX = 0.5 / scaleX;
-        const halfLengthY = 0.5 / scaleY;
-        const halfLengthZ = 0.5 / scaleZ;
-          
-        if (transformedPoint1[0] > halfLengthX && transformedPoint2[0] > halfLengthX) {
-            return false;
-        }
-        else if (transformedPoint1[0] < -halfLengthX && transformedPoint2[0] < -halfLengthX) {
-            return false;
-        }
-        else if (transformedPoint1[1] > halfLengthY && transformedPoint2[1] > halfLengthY) {
-            return false;
-        }
-        else if (transformedPoint1[1] < -halfLengthY && transformedPoint2[1] < -halfLengthY) {
-            return false;
-        }
-        else if (transformedPoint1[2] > halfLengthZ && transformedPoint2[2] > halfLengthZ) {
-            return false;
-        }
-        else if (transformedPoint1[2] < -halfLengthZ && transformedPoint2[2] < -halfLengthZ) {
-            return false;
-        }
-        
-        return true;
+        const prismMin = prismCenter.map((center, index) => center - halfSides[index]);
+        const prismMax = prismCenter.map((center, index) => center + halfSides[index]);
 
+        for (let i = 0; i < 3; i++) {
+            if (point1[i] < prismMin[i] && point2[i] < prismMin[i]) {
+                continue;
+            }
+            if (point1[i] > prismMax[i] && point2[i] > prismMax[i]) {
+                continue;
+            }
+
+            const t = (prismMax[i] - point1[i]) / (point2[i] - point1[i]);
+            const intersection = point1.map((coord, index) => coord + t * (point2[index] - coord));
+
+            let isInside = true;
+            for (let j = 0; j < 3; j++) {
+                if (j === i) {
+                    continue;
+                }
+                if (intersection[j] < prismMin[j] || intersection[j] > prismMax[j]) {
+                    isInside = false;
+                    break;
+                }
+            }
+            if (isInside) {
+                return true; 
+            }
+        }
+
+        return false; 
     }
 
     isLineIntersectingSphere(point1, point2) {
@@ -130,36 +129,29 @@ export class WorldObject {
         let scaleY = matrix[1][1];
         let scaleZ = matrix[2][2];
 
-
-        
-
-        const transformedPoint1 = [
-            (point1[0] - center[0]) / scaleX,
-            (point1[1] - center[1]) / scaleY,
-            (point1[2] - center[2]) / scaleZ
-          ];
-          
-          const transformedPoint2 = [
-            (point2[0] - center[0]) / scaleX,
-            (point2[1] - center[1]) / scaleY,
-            (point2[2] - center[2]) / scaleZ
-          ];
-          
-          // Calculate the squared lengths of the transformed line segment
-          const dx = transformedPoint2[0] - transformedPoint1[0];
-          const dy = transformedPoint2[1] - transformedPoint1[1];
-          const dz = transformedPoint2[2] - transformedPoint1[2];
-          const squaredLength = dx * dx + dy * dy + dz * dz;
-          
-          // Check if the line intersects the unit sphere centered at the origin
-          const discriminant = squaredLength - 1; // Assuming the unit sphere has radius 1
-          if (discriminant < 0) {
-            // The line does not intersect the unit sphere, so it does not intersect the ellipsoid
-            return false;
-          }
-          
-          // If the line passes all the checks, it intersects the ellipsoid
-          return true;
+        const dx = point2[0] - point1[0];
+        const dy = point2[1] - point1[1];
+        const dz = point2[2] - point1[2];
+      
+        const scaledDx = dx * scaleX;
+        const scaledDy = dy * scaleY;
+        const scaledDz = dz * scaleZ;
+      
+        const a = (scaledDx ** 2) + (scaledDy ** 2) + (scaledDz ** 2);
+        const b = 2 * (
+          ((point1[0] - center[0]) * scaledDx) +
+          ((point1[1] - center[1]) * scaledDy) +
+          ((point1[2] - center[2]) * scaledDz)
+        );
+        const c = (
+          ((point1[0] - center[0]) ** 2) +
+          ((point1[1] - center[1]) ** 2) +
+          ((point1[2] - center[2]) ** 2)
+        ) - 1;
+      
+        const discriminant = b * b - 4 * a * c;
+      
+        return discriminant >= 0;
     }
 
     isLineIntersectingTorus(point1, point2) {
@@ -169,7 +161,6 @@ export class WorldObject {
         let scaleX =  matrix[0][0];
         let scaleY = matrix[1][1];
         let scaleZ = matrix[2][2];
-
 
         const majorRadius = Math.max(scaleX, scaleY, scaleZ);
         const minorRadius = Math.min(scaleX, scaleY, scaleZ) / 2;
@@ -194,21 +185,23 @@ export class WorldObject {
         const discriminant = b * b - 4 * a * c;
       
         if (discriminant < 0) {
-          return false; 
+          return false; // No intersection with the torus surface
         }
       
+        // Calculate the z-coordinate of the intersection point
         const t = (-b - Math.sqrt(discriminant)) / (2 * a);
         const intersectionZ = point1[2] + t * dz;
       
-        const holeRadius = minorRadius * .55 ;
+        const holeRadius = minorRadius * .55 ; // Adjust the hole radius as needed
       
+        // Calculate the distance of the intersection point from the center in the xy-plane
         const intersectionDistance = Math.sqrt((point1[0] + t * dx - center[0]) ** 2 + (point1[1] + t * dy - center[1]) ** 2);
       
         if (intersectionDistance < holeRadius && Math.abs(intersectionZ) > minorRadius) {
-          return false; 
+          return false; // Intersection within the torus hole
         }
       
-        return true; 
+        return true; // Intersection with the torus surface (outside the hole)
     }
 
     isLineIntersectingShape(point1, point2){
