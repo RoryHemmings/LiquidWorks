@@ -37,13 +37,20 @@ export const createButton = ({ className='', label='', callback=()=>{} }) => {
 
 export const createFileInput = ({ className='', label='', callback=()=>{} }) => {
     let input = document.createElement('input');
+    let button = document.createElement('button');
+
     input.type = 'file';
-    input.onchange = callback;
+    input.addEventListener('change', callback);
 
-    input.innerHTML = label;
-    input.className = className;
+    input.id = 'file-input';
+    input.style = 'display: none';
 
-    return input;
+    button.innerHTML = label;
+    button.className = className;
+    button.addEventListener('mousedown', () => input.click());
+
+    button.appendChild(input);
+    return button;
 };
 
 export const createCheckbox = ({ className='', label='', callback=()=>{} }) => {

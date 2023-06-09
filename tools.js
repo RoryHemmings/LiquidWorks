@@ -290,6 +290,7 @@ export class ColorTool extends Tool {
         let div = createDiv('control-div');
         let c = document.createElement('input');
         c.type = 'color';
+        c.className = 'add-world-object-button';
         c.addEventListener('change', (e) => {
             this._ui.getEditor().selectedObject.change_color(e.target.value);
         });
@@ -298,7 +299,7 @@ export class ColorTool extends Tool {
         div.appendChild(
             createButton({
                 label: "Phong Shader",
-                className: 'phong-color-button',
+                className: 'add-world-object-button',
                 callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.phong),
             })
         );
@@ -306,7 +307,7 @@ export class ColorTool extends Tool {
         div.appendChild(
             createButton({
                 label: "Gouraud Shader",
-                className: 'gouraud-color-button',
+                className: 'add-world-object-button',
                 callback: () => this._ui.getEditor().selectedObject.change_shader(this._ui.getEditor().materials.gouraud),
             })
         );
@@ -379,19 +380,14 @@ export class AddTool extends Tool {
             );
         }
 
-        const container = createDiv('add-world-object-button');
-        const tmp = document.createElement('p');
-        tmp.innerHTML = '+';
-        container.appendChild(tmp);
-        container.appendChild(
+        // Import
+        div.appendChild(
             createFileInput({
                 label: 'Import',
+                className: 'add-world-object-button',
                 callback: (e) => this.importObject(e)
             }),
         );
-
-        // Import
-        div.appendChild(container);
 
         this._controls = div;
     }
