@@ -10,8 +10,10 @@ const { Torus, Subdivision_Sphere, Cube, Phong_Shader, Textured_Phong } = defs
 
 /* Base Scene */
 class Editor extends Scene {
-    constructor() {
+    constructor(ui) {
         super();
+
+        this._ui = ui;
 
         this.shapes = {
             cube: new Cube(),
@@ -37,7 +39,6 @@ class Editor extends Scene {
         this.selected = false;
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        this.mode = "select";
         this.initialPos = [0, 0, 0];
 
     }
@@ -45,7 +46,6 @@ class Editor extends Scene {
     set_mode(mode) {
         this.mode = mode;
     }
-
 
     my_mouse_down_select(e, pos, context, program_state) {
         let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
@@ -116,8 +116,8 @@ class Editor extends Scene {
             const diffY = pos_world_near[1] - this.initialPos[1];
             const diffZ = pos_world_near[2] - this.initialPos[2];
 
-
             this.selectedObject.translate_transform(diffX*10, diffY*10, diffZ*10);
+            this._ui.updateTool('translate');
 
             this.initialPos = pos_world_near;
         }
@@ -149,10 +149,11 @@ class Editor extends Scene {
             const angleZ = Math.atan2(diffX, diffY);
 
 
-            this.selectedObject.rotate_transform(angleX/180, 0, 0, 1);          //THIS MAKES NO SENSE :(((((((
+            this.selectedObject.rotate_transform(angleX/180, 1, 0, 0);          //THIS MAKES NO SENSE :(((((((
             this.selectedObject.rotate_transform(angleY/180, 0, 1, 0);
-            this.selectedObject.rotate_transform(angleZ/180, 1, 0, 0);
+            this.selectedObject.rotate_transform(angleZ/180, 0, 0, 1);
 
+            this._ui.updateTool('rotate');
             this.initialPos = pos_world_near;
         }
     }
@@ -208,14 +209,15 @@ class Editor extends Scene {
 
                 const rect = canvas.getBoundingClientRect();
 
-                if (this.mode == "Select"){
+                const mode = this._ui.getCurrentTool().displayName;
+                if (mode == "Select"){
                     this.my_mouse_down_select(e, mouse_position(e), context, program_state);
                 }
-                else if (this.mode == "Transform"){
+                else if (mode == "Translate"){
                     e.stopImmediatePropagation();
                     this.my_mouse_down_translate(e, mouse_position(e), context, program_state, true);
                 }
-                else if (this.mode == "Rotate"){
+                else if (mode == "Rotate"){
                     e.stopImmediatePropagation();
                     this.my_mouse_down_rotate(e, mouse_position(e), context, program_state, true);
                 }
@@ -229,7 +231,8 @@ class Editor extends Scene {
                 e.preventDefault();
 
                 if (isMouseDown){
-                    if (this.mode == "Transform"){
+                    const mode = this._ui.getCurrentTool().displayName;
+                    if (mode == "Translate"){
                         e.stopImmediatePropagation();
                         controls.enablePan = false;
                         var mouseX = e.clientX;
@@ -237,7 +240,7 @@ class Editor extends Scene {
 
                         this.my_mouse_down_translate(e, mouse_position(e), context, program_state, false);
                     }
-                    else if (this.mode == "Rotate"){
+                    else if (mode == "Rotate"){
                         e.stopImmediatePropagation();
                         controls.enablePan = false;
 

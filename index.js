@@ -1,17 +1,12 @@
-import {
-    Editor,
-    Canvas_Widget,
-} from './editor.js';
-
 import UI from './ui.js'
+import { Canvas_Widget } from './editor.js';
 
 const setup = () => {
-    const editor = new Editor();
     // Set up UI
-    new UI(editor);
+    const ui = new UI();
 
     // Draw Canvas
-    new Canvas_Widget(document.querySelector("#editor-canvas"), [editor], {
+    new Canvas_Widget(document.querySelector("#editor-canvas"), [ui.getEditor()], {
         make_controls: false,
         make_code_nav: false,
         show_explanation: false,
