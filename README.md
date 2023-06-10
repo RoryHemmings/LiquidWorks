@@ -46,7 +46,7 @@ Below are specific instructions on how to use each tool.
 
 ### Selection
 
-To select an object, you can simply click on it once you are in select mode. The object will get slightly darker to reflect its selection. This will give you access to the rest of the available tools. When using tools, they will only affect the currently selected object.
+To select an object, you can simply click on it once you are in select mode. The object will get slightly darker to reflect its selection. This will give you access to the rest of the available tools. When using tools, they will only affect the currently selected object. How the selection code is implemented is through ray casting where the mouse's location is converted from screen space to world space then each object is iterated through to determine whether or not that ray intersects its 3D bounds. If multiple object s are intersected it selects the closest object. Each 3D object has its own function to determine collision, rectangular prism, sphere, and torus. These function updates as the object is scaled and translated. 
 
 >Note: custom `.objs` have bounding boxes that might not encompas the entire object. To mitigate this, you might have to click near the center to select the object.
 ![select](img/select.png)
