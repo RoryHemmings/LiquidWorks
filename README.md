@@ -49,12 +49,14 @@ Below are specific instructions on how to use each tool.
 To select an object, you can simply click on it once you are in select mode. The object will get slightly darker to reflect its selection. This will give you access to the rest of the available tools. When using tools, they will only affect the currently selected object.
 
 >Note: custom `.objs` have bounding boxes that might not encompas the entire object. To mitigate this, you might have to click near the center to select the object.
+![select](img/select.png)
 
 ### Translation
 
 Once in translate mode, you can simply click on the selected object and drag it anywhere on the screen. Its position will be updated to match that of your mouse. To move the object throughout the Z dimension, you will have to rotate the perspective of the camera (done in select mode).
 
 When you move your object, its values will be reflected in the controls on the right sidebar. Additionally, you can update these values directly to get more fine grained control over the position.
+![translate](img/translate.png)
 
 ### Rotation
 
@@ -63,18 +65,22 @@ In rotate mode, you can rotate the object around all three axes. First select th
 Next you can drag your mouse across the screen. The angle between the point of reference and of the cursors X position corresponds to the rotation of the object.
 
 Additionally, as with translation, you the rotation of the object around each axis is reflected in the control panel. You can directly change the values in the control panel to rotate the object more precisely.
+![rotate](img/rotate.png)
 
 ### Scaling
 
 Similarly to rotation and translation, you are able to scale the objects in all three axis using both the mouse curser and manual inputs. The scaling updates realtime by taking into account stretching up to the mouse curser or compressing when stretched left or down.
+![scale](img/scale.png)
 
 ### Colors, Shaders, and Textures
 
 The user is able to use a color picker in order to change the color of the selected object. The user can also choose between a phong and gouraud shader. There is also the option to import your own custom texture if you wish to have a unique print or image displayed, it just is required that the image is square and the pixel amount is a power of two.  
+![color](img/color.png)
 
 ### Adding objects to the scene
 
 The user starts with a blank scene and is able to add cubes, spheres, and toruses which are built in. These object are mutable so they also represent rectangular prisms and elipsoids. The user also has the ability to import any custom shape that is in the file format obj. Custom objects will have a rectangular prism bounding box around them for transformations as well as for selection. 
+![add](img/add.png)
 
 
 ## More
