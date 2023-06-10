@@ -66,9 +66,15 @@ Additionally, as with translation, you the rotation of the object around each ax
 
 ### Scaling
 
+Similarly to rotation and translation, you are able to scale the objects in all three axis using both the mouse curser and manual inputs. The scaling updates realtime by taking into account stretching up to the mouse curser or compressing when stretched left or down.
+
 ### Colors, Shaders, and Textures
 
+The user is able to use a color picker in order to change the color of the selected object. The user can also choose between a phong and gouraud shader. There is also the option to import your own custom texture if you wish to have a unique print or image displayed, it just is required that the image is square and the pixel amount is a power of two.  
+
 ### Adding objects to the scene
+
+The user starts with a blank scene and is able to add cubes, spheres, and toruses which are built in. These object are mutable so they also represent rectangular prisms and elipsoids. The user also has the ability to import any custom shape that is in the file format obj. Custom objects will have a rectangular prism bounding box around them for transformations as well as for selection. 
 
 
 ## More
